@@ -1,10 +1,8 @@
 return {
-    "neovim/nvim-lspconfig",
-    opts = function()
-        if LazyVim.pick.want() ~= "telescope" then
-            return
-        end
-        local Keys = require("lazyvim.plugins.lsp.keymaps").get()
+    {
+        "neovim/nvim-lspconfig",
+        opts = function()
+            local Keys = require("lazyvim.plugins.lsp.keymaps").get()
         -- stylua: ignore
         vim.list_extend(Keys, {
             { "gd", function() require("telescope.builtin").lsp_definitions({ reuse_win = true }) end, desc = "Goto Definition", has = "definition" },
@@ -15,5 +13,26 @@ return {
             { "gI", false },
             { "gK", false },
         })
-    end,
+        end,
+    },
+    {
+        "neovim/nvim-lspconfig",
+        opts = {
+            diagnostics = {
+                underline = true,
+                update_in_insert = false,
+                virtual_text = false,
+                severity_sort = true,
+                signs = false,
+                float = {
+                    focusable = true,
+                    style = "minimal",
+                    border = "none",
+                    source = "if_many",
+                    header = "Diagnostics",
+                    prefix = "",
+                },
+            },
+        },
+    },
 }
