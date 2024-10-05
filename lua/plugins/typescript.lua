@@ -66,4 +66,25 @@ return {
             },
         },
     },
+    { "dmmulroy/ts-error-translator.nvim", opts = {} },
+    {
+        "dmmulroy/tsc.nvim",
+        opts = {
+
+            use_trouble_qflist = true,
+            run_as_monorepo = false,
+        },
+        keys = {
+            {
+                "<leader>Ts",
+                "<CMD>TSC<CR>",
+                desc = "TypeScript check",
+            },
+            {
+                "<leader>Tx",
+                "<CMD>TSCStop<CR>",
+                desc = "TypeScript check stop",
+            },
+        },
+    },
 }
