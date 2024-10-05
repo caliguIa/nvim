@@ -4,7 +4,6 @@ return {
     {
         "neovim/nvim-lspconfig",
         opts = {
-            -- @type lspconfig.options
             servers = {
                 -- phpactor = {
                 --     enabled = true,
@@ -131,11 +130,11 @@ return {
             "MunifTanjim/nui.nvim",
         },
         cmd = { "Sail", "Artisan", "Composer", "Npm", "Yarn", "Laravel" },
-        keys = {
-            { "<leader>la", ":Laravel artisan<cr>" },
-            { "<leader>lr", ":Laravel routes<cr>" },
-            { "<leader>lm", ":Laravel related<cr>" },
-        },
+        -- keys = {
+        --     { "<leader>la", ":Laravel artisan<cr>" },
+        --     { "<leader>lr", ":Laravel routes<cr>" },
+        --     { "<leader>lm", ":Laravel related<cr>" },
+        -- },
         event = { "VeryLazy" },
         opts = {
             lsp_server = "intelephense",
