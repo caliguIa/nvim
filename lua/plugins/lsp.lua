@@ -8,6 +8,8 @@ return {
             { "gd", function() require("telescope.builtin").lsp_definitions({ reuse_win = true }) end, desc = "Goto Definition", has = "definition" },
             { "gr", "<cmd>Telescope lsp_references<cr>", desc = "References", nowait = true },
             { "gt", function() require("telescope.builtin").lsp_type_definitions({ reuse_win = true }) end, desc = "Goto Type Definition" },
+            { "<leader>rn", vim.lsp.buf.rename, desc = "Rename", has = "rename" },
+            { "<leader>rN", LazyVim.lsp.rename_file, desc = "Rename File", mode = {"n"}, has = { "workspace/didRenameFiles", "workspace/willRenameFiles" } },
             { "gy", false },
             { "gD", false },
             { "gI", false },
