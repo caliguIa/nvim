@@ -1,4 +1,5 @@
 local lspconfig = require("lspconfig")
+local ft = { "typescript", "typescriptreact", "javascript", "javascriptreact" }
 
 return {
     {
@@ -66,9 +67,14 @@ return {
             },
         },
     },
-    { "dmmulroy/ts-error-translator.nvim", opts = {} },
+    {
+        "dmmulroy/ts-error-translator.nvim",
+        ft = ft,
+        opts = {},
+    },
     {
         "dmmulroy/tsc.nvim",
+        ft = ft,
         opts = {
 
             use_trouble_qflist = true,
