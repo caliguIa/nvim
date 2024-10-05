@@ -130,11 +130,11 @@ return {
             "MunifTanjim/nui.nvim",
         },
         cmd = { "Sail", "Artisan", "Composer", "Npm", "Yarn", "Laravel" },
-        -- keys = {
-        --     { "<leader>la", ":Laravel artisan<cr>" },
-        --     { "<leader>lr", ":Laravel routes<cr>" },
-        --     { "<leader>lm", ":Laravel related<cr>" },
-        -- },
+        keys = {
+            { "<leader>La", ":Laravel artisan<cr>" },
+            { "<leader>Lr", ":Laravel routes<cr>" },
+            { "<leader>Lm", ":Laravel related<cr>" },
+        },
         event = { "VeryLazy" },
         opts = {
             lsp_server = "intelephense",
