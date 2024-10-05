@@ -1,5 +1,12 @@
 local keymap = vim.keymap
 
+-- Remove default keymaps
+keymap.del("n", "g%")
+keymap.del("n", "<leader>K")
+keymap.del("n", "<leader>L")
+keymap.del("n", "<leader>`")
+keymap.del("n", "<leader>ft")
+
 keymap.set("n", "<leader>X", "<cmd>!chmod +x %<CR>", { desc = "Make file executable" })
 
 keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move line down" })
@@ -17,3 +24,7 @@ keymap.set("n", "<leader>e", function()
     end
     vim.api.nvim_win_set_config(winid or 0, { focusable = true })
 end, { noremap = true, silent = true, desc = "Diagnostics" })
+
+keymap.set("n", "<leader>ft", function()
+    LazyVim.terminal()
+end, { desc = "Terminal" })
