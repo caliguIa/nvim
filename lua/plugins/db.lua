@@ -19,7 +19,7 @@ return {
         keys = {
             {
                 "<leader>db",
-                "<CMD>DBUITOGGLE<CR>",
+                "<CMD>DBUIToggle<CR>",
                 desc = "Toggle database",
             },
         },
