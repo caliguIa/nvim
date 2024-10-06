@@ -1,13 +1,13 @@
 return {
-    "NeogitOrg/neogit",
+    'NeogitOrg/neogit',
     dependencies = {
-        "nvim-lua/plenary.nvim",
-        "sindrets/diffview.nvim",
-        "nvim-telescope/telescope.nvim",
+        'nvim-lua/plenary.nvim',
+        'sindrets/diffview.nvim',
+        'nvim-telescope/telescope.nvim',
     },
     opts = {
         disable_builtin_notifications = true,
-        disable_insert_on_commit = "auto",
+        disable_insert_on_commit = 'auto',
         integrations = {
             diffview = true,
             telescope = true,
@@ -21,18 +21,14 @@ return {
     },
     keys = {
         {
-            "<Leader>gg",
-            function()
-                require("neogit").open()
-            end,
-            desc = "Git",
+            '<Leader>gg',
+            function() require('neogit').open() end,
+            desc = 'Git',
         },
         {
-            "<Leader>gc",
-            function()
-                require("neogit").open({ "commit" })
-            end,
-            desc = "Git Commit",
+            '<Leader>gc',
+            function() require('neogit').open { 'commit' } end,
+            desc = 'Git Commit',
         },
     },
     config = true,
