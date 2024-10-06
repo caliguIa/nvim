@@ -8,6 +8,7 @@ g.loaded_netrw = 1
 g.loaded_netrwPlugin = 1
 g.lazyvim_php_lsp = "intelephense"
 g.lazyvim_picker = "telescope"
+g.lazyvim_prettier_needs_config = true -- If no prettier config file is found, the formatter will not be used
 
 opt.compatible = false
 
