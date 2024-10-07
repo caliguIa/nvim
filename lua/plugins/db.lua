@@ -13,36 +13,34 @@ return {
         },
         init = function()
             local cmp = require 'cmp'
-            local db = 'mysql://'
             cmp.setup.filetype({ 'sql' }, { sources = { { name = 'vim-dadbod-completion' }, { name = 'buffer' } } })
+
             vim.g.db_ui_use_nerd_fonts = 1
+            vim.g.db_ui_winwidth = 40
+            vim.g.db_ui_win_position = 'right'
+            vim.g.db_ui_auto_execute_table_helpers = true
+            vim.g.db_ui_execute_on_save = false
+            vim.g.db_ui_show_database_icon = true
             vim.g.dbs = {
                 {
                     name = 'ous-local',
-                    url = db
-                        .. os.getenv 'DB_OUS_LOCAL_USER'
-                        .. ':'
-                        .. os.getenv 'DB_OUS_LOCAL_PASS'
-                        .. '@127.0.0.3:3306/'
-                        .. os.getenv 'DB_OUS_LOCAL_NAME',
+                    url = os.getenv 'DB_OUS_LOCAL',
                 },
                 {
                     name = 'ous-staging',
-                    url = db
-                        .. os.getenv 'DB_OUS_STAGING_USER'
-                        .. ':'
-                        .. os.getenv 'DB_OUS_STAGING_PASS'
-                        .. '@127.0.0.1:7002/'
-                        .. os.getenv 'DB_OUS_STAGING_NAME',
+                    url = function()
+                        vim.fn.system 'timeout 1200s ssh -N ous-staging &'
+                        print 'Connecting to staging tunnel for 20 minutes'
+                        return os.getenv 'DB_OUS_STAGING'
+                    end,
                 },
                 {
                     name = 'ous-prod',
-                    url = db
-                        .. os.getenv 'DB_OUS_PROD_USER'
-                        .. ':'
-                        .. os.getenv 'DB_OUS_PROD_PASS'
-                        .. '@127.0.0.1:7003/'
-                        .. os.getenv 'DB_OUS_PROD_NAME',
+                    url = function()
+                        vim.fn.system 'timeout 1200s ssh -N ous-prod &'
+                        print 'Connecting to prod tunnel for 20 minutes'
+                        return os.getenv 'DB_OUS_PROD'
+                    end,
                 },
             }
         end,
