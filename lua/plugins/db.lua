@@ -1,3 +1,7 @@
+local util = require 'conform.util'
+local uv = vim.loop
+local function notify_user(msg) print(msg) end
+
 return {
     {
         'kristijanhusak/vim-dadbod-ui',
@@ -32,16 +36,27 @@ return {
                 {
                     name = 'ous-staging',
                     url = function()
-                        vim.fn.system 'timeout 1200s ssh -N ous-staging &'
-                        print 'Connecting to staging tunnel for 20 minutes'
+                        local handle
+                        handle = uv.spawn('timeout', {
+                            args = { '1200s', 'ssh', '-N', 'ous-staging' },
+                            stdio = { nil, nil, nil },
+                        }, function()
+                            handle:close()
+                            notify_user 'Timeout hit for SSH tunnel.'
+                        end)
+
                         return os.getenv 'DB_OUS_STAGING'
                     end,
                 },
                 {
                     name = 'ous-prod',
                     url = function()
-                        vim.fn.system 'timeout 1200s ssh -N ous-prod &'
-                        print 'Connecting to prod tunnel for 20 minutes'
+                        local handle
+                        handle = uv.spawn('timeout', {
+                            args = { '1200s', 'ssh', '-N', 'ous-prod' },
+                            stdio = { nil, nil, nil },
+                        }, function() handle:close() end)
+
                         return os.getenv 'DB_OUS_PROD'
                     end,
                 },
