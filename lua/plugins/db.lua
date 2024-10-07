@@ -12,6 +12,7 @@ return {
             'DBUIFindBuffer',
         },
         init = function()
+            local base = vim.fs.joinpath(os.getenv 'HOME', 'tmp', 'queries')
             local cmp = require 'cmp'
             cmp.setup.filetype({ 'sql' }, { sources = { { name = 'vim-dadbod-completion' }, { name = 'buffer' } } })
 
@@ -21,6 +22,8 @@ return {
             vim.g.db_ui_auto_execute_table_helpers = true
             vim.g.db_ui_execute_on_save = false
             vim.g.db_ui_show_database_icon = true
+            vim.g.db_ui_save_location = base
+            vim.g.db_ui_tmp_query_location = vim.fs.joinpath(base, 'tmp')
             vim.g.dbs = {
                 {
                     name = 'ous-local',
@@ -49,6 +52,26 @@ return {
                 '<leader>db',
                 '<CMD>DBUIToggle<CR>',
                 desc = 'Toggle database',
+            },
+        },
+    },
+    {
+        'stevearc/conform.nvim',
+        opts = {
+            formatters_by_ft = {
+                sql = { 'sqlfluff' },
+            },
+            formatters = {
+                sqlfluff = {
+                    command = 'sqlfluff',
+                    args = {
+                        'format',
+                        '-',
+                    },
+                    cwd = util.root_file {
+                        '.sqlfluff',
+                    },
+                },
             },
         },
     },
