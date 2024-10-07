@@ -1,6 +1,6 @@
 local util = require 'conform.util'
 local uv = vim.loop
-local function notify_user(msg) print(msg) end
+local notify = require 'notify'
 
 return {
     {
@@ -42,7 +42,7 @@ return {
                             stdio = { nil, nil, nil },
                         }, function()
                             handle:close()
-                            notify_user 'Timeout hit for SSH tunnel.'
+                            notify('Closing SSH tunnel', 'error')
                         end)
 
                         return os.getenv 'DB_OUS_STAGING'
