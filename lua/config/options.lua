@@ -1,5 +1,5 @@
 local cmd = vim.cmd
-local opt = vim.o
+local o = vim.o
 local g = vim.g
 
 g.mapleader = ' '
@@ -10,47 +10,52 @@ g.lazyvim_php_lsp = 'intelephense'
 g.lazyvim_picker = 'telescope'
 g.lazyvim_prettier_needs_config = true -- If no prettier config file is found, the formatter will not be used
 
-opt.compatible = false
+o.spelllang = 'en,uk' -- Define spelling dictionaries
+o.spelloptions = 'camel' -- Treat parts of camelCase words as seprate words
+vim.opt.complete:append 'kspell' -- Add spellcheck options for autocomplete
+vim.opt.complete:remove 't' -- Don't use tags for completion
+
+o.compatible = false
 
 -- Search down into subfolders
-opt.path = vim.o.path .. '**'
+o.path = vim.o.path .. '**'
 
-opt.number = true
-opt.relativenumber = true
-opt.cursorline = true
-opt.showmatch = true -- Highlight matching parentheses, etc
-opt.incsearch = true
-opt.hlsearch = true
+o.number = true
+o.relativenumber = true
+o.cursorline = true
+o.showmatch = true -- Highlight matching parentheses, etc
+o.incsearch = true
+o.hlsearch = true
 
-opt.autoindent = true
-opt.expandtab = true
-opt.tabstop = 4
-opt.shiftwidth = 4
-opt.foldenable = true
-opt.history = 2000
-opt.nrformats = 'bin,hex' -- 'octal'
-opt.undofile = true
-opt.undodir = os.getenv 'HOME' .. '/.vim/undodir'
-opt.splitright = true
-opt.splitbelow = true
-opt.cmdheight = 0
+o.autoindent = true
+o.expandtab = true
+o.tabstop = 4
+o.shiftwidth = 4
+o.foldenable = true
+o.history = 2000
+o.nrformats = 'bin,hex' -- 'octal'
+o.undofile = true
+o.undodir = os.getenv 'HOME' .. '/.vim/undodir'
+o.splitright = true
+o.splitbelow = true
+o.cmdheight = 0
 
-opt.inccommand = 'split'
-opt.mouse = 'a'
-opt.clipboard = 'unnamedplus'
-opt.breakindent = true
-opt.autoread = true
-opt.ignorecase = true
-opt.smartcase = true
-opt.scrolloff = 10
-opt.updatetime = 50
-opt.timeout = true
-opt.timeoutlen = 300
-opt.completeopt = 'menuone,noselect'
-opt.termguicolors = true
-opt.swapfile = false
-opt.wrap = false
-opt.showmode = false
+o.inccommand = 'split'
+o.mouse = 'a'
+o.clipboard = 'unnamedplus'
+o.breakindent = true
+o.autoread = true
+o.ignorecase = true
+o.smartcase = true
+o.scrolloff = 10
+o.updatetime = 50
+o.timeout = true
+o.timeoutlen = 300
+o.completeopt = 'menuone,noselect'
+o.termguicolors = true
+o.swapfile = false
+o.wrap = false
+o.showmode = false
 
 vim.opt.formatoptions:remove 'o'
 
