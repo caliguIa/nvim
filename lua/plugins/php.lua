@@ -5,29 +5,6 @@ return {
         'neovim/nvim-lspconfig',
         opts = {
             servers = {
-                -- phpactor = {
-                --     enabled = true,
-                --     filetypes = { "php", "blade", "php_only" },
-                --     init_options = {
-                --         ["language_server_worse_reflection.inlay_hints.enable"] = true,
-                --         ["language_server_worse_reflection.inlay_hints.params"] = true,
-                --         ["language_server_worse_reflection.inlay_hints.types"] = false,
-                --         ["language_server_phpstan.enabled"] = false,
-                --         ["language_server_psalm.enabled"] = false,
-                --     },
-                --     handlers = {
-                --         ["textDocument/publishDiagnostics"] = function() end,
-                --         ["textDocument/codeAction"] = function() end,
-                --         ["textDocument/documentSymbol"] = function() end,
-                --         ["textDocument/definition"] = function() end,
-                --         ["textDocument/references"] = function() end,
-                --         ["textDocument/hover"] = function() end,
-                --         ["textDocument/rename"] = function()
-                --             print("fuck offffffffffffffffffffffffff")
-                --         end,
-                --     },
-                -- },
-
                 intelephense = {
                     enabled = true,
                     init_options = {
@@ -54,43 +31,11 @@ return {
                 },
             },
         },
-        -- setup = {
-        -- phpactor = function()
-        --     LazyVim.lsp.on_attach(function(client)
-        --         -- client.server_capabilities.documentDiagnosticsProvider = false -- Diagnostics handled by intelephense
-        --         client.server_capabilities.renameProvider = false
-        --         -- client.server_capabilities.hoverProvider = false
-        --         -- client.server_capabilities.implementationProvider = false
-        --         -- client.server_capabilities.referencesProvider = false
-        --         -- client.server_capabilities.selectionRangeProvider = false
-        --         -- client.server_capabilities.typeDefinitionProvider = false
-        --         -- client.server_capabilities.workspaceSymbolProvider = false
-        --         -- client.server_capabilities.definitionProvider = false
-        --         -- client.server_capabilities.documentHighlightProvider = false
-        --         -- client.server_capabilities.documentSymbolProvider = false
-        --         client.server_capabilities.documentFormattingProvider = false
-        --         client.server_capabilities.documentRangeFormattingProvider = false
-        --     end, "phpactor")
-        -- end,
-        -- intelephense = function()
-        --     LazyVim.lsp.on_attach(function(client, bufnr)
-        --         client.server_capabilities.definitionProvider = true
-        --         client.server_capabilities.referencesProvider = true
-        --         client.server_capabilities.inlineCompletionProvider = true
-        --         client.server_capabilities.documentSymbolProvider = true
-        --         client.server_capabilities.workspaceSymbolProvider = true
-        --         client.server_capabilities.documentFormattingProvider = false
-        --         client.server_capabilities.documentRangeFormattingProvider = false
-        --         if client.server_capabilities.inlayHintProvider then
-        --             vim.lsp.buf.inlay_hint(bufnr, true)
-        --         end
-        --     end, "intelephense")
-        -- end,
-        -- },
     },
     {
         'stevearc/conform.nvim',
         opts = {
+            notify_on_error = false,
             formatters_by_ft = {
                 php = { 'pint' },
             },
