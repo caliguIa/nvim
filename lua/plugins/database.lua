@@ -62,13 +62,6 @@ return {
                 },
             }
         end,
-        keys = {
-            {
-                '<leader>db',
-                '<CMD>DBUIToggle<CR>',
-                desc = 'Toggle database',
-            },
-        },
     },
     {
         'stevearc/conform.nvim',
