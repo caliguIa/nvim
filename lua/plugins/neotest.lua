@@ -8,6 +8,7 @@ return {
     },
     opts = {
         adapters = {
+            ['rustaceanvim.neotest'] = {},
             ['neotest-phpunit'] = {},
             ['neotest-vitest'] = {
                 -- vitestCommand = "bunx vitest",
