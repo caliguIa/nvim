@@ -1,9 +1,9 @@
-local lspconfig = require 'lspconfig'
-local ft = { 'typescript', 'typescriptreact', 'javascript', 'javascriptreact' }
+local lspconfig = require "lspconfig"
+local ft = { "typescript", "typescriptreact", "javascript", "javascriptreact" }
 
 return {
     {
-        'neovim/nvim-lspconfig',
+        "neovim/nvim-lspconfig",
         opts = {
             servers = {
                 vtsls = {
@@ -12,7 +12,7 @@ return {
                             inlayHints = {
                                 enumMemberValues = { enabled = true },
                                 functionLikeReturnTypes = { enabled = false },
-                                parameterNames = { enabled = 'literals' },
+                                parameterNames = { enabled = "literals" },
                                 parameterTypes = { enabled = false },
                                 propertyDeclarationTypes = { enabled = false },
                                 variableTypes = { enabled = false },
@@ -24,36 +24,36 @@ return {
                     init_options = {
                         provideFormatter = true,
                     },
-                    root_dir = lspconfig.util.root_pattern '.eslintrc.json',
+                    root_dir = lspconfig.util.root_pattern ".eslintrc.json",
                     settings = {
                         codeAction = {
                             disableRuleComment = {
                                 enable = true,
-                                location = 'separateLine',
+                                location = "separateLine",
                             },
                             showDocumentation = {
                                 enable = true,
                             },
                         },
-                        packageManager = 'npm',
+                        packageManager = "npm",
                         codeActionOnSave = {
                             enable = true,
-                            mode = 'all',
+                            mode = "all",
                         },
-                        onIgnoredFiles = 'off',
+                        onIgnoredFiles = "off",
                         problems = {
                             shortenToSingleLine = false,
                         },
                         rulesCustomizations = {
                             {
-                                rule = 'no-underscore-dangle',
-                                severity = 'off',
+                                rule = "no-underscore-dangle",
+                                severity = "off",
                             },
                         },
-                        validate = 'on',
+                        validate = "on",
                         format = true,
                         workingDirecotry = {
-                            mode = 'auto',
+                            mode = "auto",
                         },
                     },
                     on_new_config = function(config, new_root_dir)
@@ -67,12 +67,12 @@ return {
         },
     },
     {
-        'dmmulroy/ts-error-translator.nvim',
+        "dmmulroy/ts-error-translator.nvim",
         ft = ft,
         opts = {},
     },
     {
-        'dmmulroy/tsc.nvim',
+        "dmmulroy/tsc.nvim",
         ft = ft,
         opts = {
 
@@ -81,14 +81,14 @@ return {
         },
         keys = {
             {
-                '<leader>Ts',
-                '<CMD>TSC<CR>',
-                desc = 'TypeScript check',
+                "<leader>Ts",
+                "<CMD>TSC<CR>",
+                desc = "TypeScript check",
             },
             {
-                '<leader>Tx',
-                '<CMD>TSCStop<CR>',
-                desc = 'TypeScript check stop',
+                "<leader>Tx",
+                "<CMD>TSCStop<CR>",
+                desc = "TypeScript check stop",
             },
         },
     },

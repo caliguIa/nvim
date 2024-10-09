@@ -20,4 +20,12 @@ return {
     --         vim.g.rustaceanvim.dap.adapter = cfg.get_codelldb_adapter(codelldb_path, liblldb_path)
     --     end,
     -- },
+    {
+        "stevearc/conform.nvim",
+        opts = {
+            formatters_by_ft = {
+                rust = { "rustfmt" },
+            },
+        },
+    },
 }

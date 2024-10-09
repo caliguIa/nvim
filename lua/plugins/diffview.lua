@@ -1,20 +1,20 @@
 return {
-    'sindrets/diffview.nvim',
+    "sindrets/diffview.nvim",
     keys = {
         {
-            '<leader>gd',
+            "<leader>gd",
             vim.cmd.DiffviewOpen,
-            desc = 'Open diffview',
+            desc = "Open diffview",
         },
         {
-            '<leader>gh',
+            "<leader>gh",
             vim.cmd.diffviewfilehistory,
-            desc = 'File history',
+            desc = "File history",
         },
         {
-            '<leader>gfb',
+            "<leader>gfb",
             function() vim.cmd.DiffviewFileHistory(vim.api.nvim_buf_get_name(0)) end,
-            desc = 'Buffer history',
+            desc = "Buffer history",
         },
     },
 }

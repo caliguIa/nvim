@@ -1,12 +1,12 @@
 return {
     {
-        'williamboman/mason.nvim',
-        opts = { ensure_installed = { 'codelldb' } },
+        "williamboman/mason.nvim",
+        opts = { ensure_installed = { "codelldb" } },
     },
     {
-        'neovim/nvim-lspconfig',
+        "neovim/nvim-lspconfig",
         opts = function()
-            local Keys = require('lazyvim.plugins.lsp.keymaps').get()
+            local Keys = require("lazyvim.plugins.lsp.keymaps").get()
         -- stylua: ignore
         vim.list_extend(Keys, {
             { "gd", function() require("telescope.builtin").lsp_definitions({ reuse_win = true }) end, desc = "Goto Definition", has = "definition" },
@@ -22,7 +22,7 @@ return {
         end,
     },
     {
-        'neovim/nvim-lspconfig',
+        "neovim/nvim-lspconfig",
         opts = {
             diagnostics = {
                 underline = true,
@@ -32,11 +32,11 @@ return {
                 signs = false,
                 float = {
                     focusable = true,
-                    style = 'minimal',
-                    border = 'none',
-                    source = 'if_many',
-                    header = 'Diagnostics',
-                    prefix = '',
+                    style = "minimal",
+                    border = "none",
+                    source = "if_many",
+                    header = "Diagnostics",
+                    prefix = "",
                 },
             },
         },
