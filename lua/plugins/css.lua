@@ -19,7 +19,7 @@ return {
                 css_variables = {
                     enabled = true,
                 },
-                css_ls = {
+                cssls = {
                     enabled = true,
                 },
             },
