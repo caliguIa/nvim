@@ -10,7 +10,7 @@ g.lazyvim_php_lsp = "intelephense"
 g.lazyvim_picker = "telescope"
 g.lazyvim_prettier_needs_config = true -- If no prettier config file is found, the formatter will not be used
 
-o.spelllang = "en,uk" -- Define spelling dictionaries
+o.spelllang = "en" -- Define spelling dictionaries
 o.spelloptions = "camel" -- Treat parts of camelCase words as seprate words
 vim.opt.complete:append "kspell" -- Add spellcheck options for autocomplete
 vim.opt.complete:remove "t" -- Don't use tags for completion
