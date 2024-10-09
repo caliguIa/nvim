@@ -1,13 +1,13 @@
 return {
     {
-        'rcarriga/nvim-notify',
+        "rcarriga/nvim-notify",
         opts = {
-            stages = 'static',
-            render = 'wrapped-compact',
+            stages = "static",
+            render = "wrapped-compact",
         },
     },
     {
-        'echasnovski/mini.notify',
+        "echasnovski/mini.notify",
         version = false,
         opts = {
             lsp_progress = {
