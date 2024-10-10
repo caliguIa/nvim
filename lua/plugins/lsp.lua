@@ -18,6 +18,7 @@ return {
             { "gD", false },
             { "gI", false },
             { "gK", false },
+            { "<leader>cl", false },
         })
         end,
     },

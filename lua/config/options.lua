@@ -38,7 +38,7 @@ o.undofile = true
 o.undodir = os.getenv "HOME" .. "/.vim/undodir"
 o.splitright = true
 o.splitbelow = true
-o.cmdheight = 0
+o.cmdheight = 1
 
 o.inccommand = "split"
 o.mouse = "a"
