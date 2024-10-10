@@ -66,18 +66,18 @@ return {
             },
         },
     },
-    {
-        "dmmulroy/ts-error-translator.nvim",
-        ft = ft,
-        opts = {},
-    },
+    -- {
+    --     "dmmulroy/ts-error-translator.nvim",
+    --     ft = ft,
+    --     opts = {},
+    -- },
     {
         "dmmulroy/tsc.nvim",
         ft = ft,
         opts = {
 
-            use_trouble_qflist = true,
             run_as_monorepo = false,
+            use_trouble_qflist = true,
         },
         keys = {
             {
