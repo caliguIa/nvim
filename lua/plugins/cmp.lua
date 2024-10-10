@@ -45,26 +45,18 @@ return {
     {
         "saghen/blink.cmp",
         enabled = true,
-        lazy = false, -- lazy loading handled internally
+        lazy = false,
         dependencies = "rafamadriz/friendly-snippets",
         version = "v0.*",
         opts = {
             highlight = { use_nvim_cmp_as_default = true },
             nerd_font_variant = "normal",
             accept = { auto_brackets = { enabled = true } },
-            trigger = { signature_help = { enabled = false, show_on_insert_on_trigger_character = false } },
+            trigger = { signature_help = { enabled = true, show_on_insert_on_trigger_character = false } },
             keymap = {
                 accept = "<C-a>",
                 select_prev = { "<Up>", "<C-k>", "<C-p>" },
                 select_next = { "<Down>", "<C-j>", "<C-n>" },
-            },
-            providers = {
-                {
-                    { "blink.cmp.sources.lsp" },
-                    { "blink.cmp.sources.path" },
-                    { "blink.cmp.sources.snippets", score_offset = -3 },
-                },
-                { { "blink.cmp.sources.buffer" } },
             },
         },
     },
