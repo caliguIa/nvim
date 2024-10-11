@@ -36,7 +36,6 @@ local function insert_debug_statement(node, debug_statement)
             statement_node:type()
         )
     do
-        print(statement_node)
         statement_node = statement_node:parent()
     end
 
