@@ -1,56 +1,55 @@
--- local cmp = require "cmp"
-
 return {
-    -- {
-    -- "hrsh7th/nvim-cmp",
-    -- opts = {
-    -- completion = {
-    --     completeopt = "menu,menuone,noinsert,noselect",
-    -- },
-    -- preselect = false,
-    -- mapping = cmp.mapping.preset.insert {
-    --     ["<C-b>"] = cmp.mapping.scroll_docs(-4),
-    --     ["<C-f>"] = cmp.mapping.scroll_docs(4),
-    --     ["<C-n>"] = cmp.mapping.select_next_item { behavior = cmp.SelectBehavior.Insert },
-    --     ["<C-p>"] = cmp.mapping.select_prev_item { behavior = cmp.SelectBehavior.Insert },
-    --     ["<C-Space>"] = cmp.mapping.complete(),
-    --     ["<C-a>"] = LazyVim.cmp.confirm { select = true },
-    --     ["<C-y>"] = LazyVim.cmp.confirm { select = true },
-    --     ["<CR>"] = LazyVim.cmp.confirm { select = false },
-    --     ["<S-CR>"] = LazyVim.cmp.confirm { behavior = cmp.ConfirmBehavior.Replace }, -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-    --     ["<C-CR>"] = function(fallback)
-    --         cmp.abort()
-    --         fallback()
-    --     end,
-    -- },
-    -- experimental = {
-    --     native_menu = false,
-    --     ghost_text = false,
-    -- },
-    -- },
-    -- },
     {
         "saghen/blink.cmp",
         lazy = false,
-        dependencies = { "rafamadriz/friendly-snippets" },
+        dependencies = {
+            -- "saghen/blink.compat",
+            "rafamadriz/friendly-snippets",
+            -- "kristijanhusak/vim-dadbod-completion",
+        },
         version = "v0.*",
         ---@module 'blink.cmp'
         ---@type blink.cmp.Config
         opts = {
             highlight = { use_nvim_cmp_as_default = true },
-            nerd_font_variant = "normal",
-            accept = { auto_brackets = { enabled = false } },
-            trigger = { signature_help = { enabled = false, show_on_insert_on_trigger_character = false } },
-            providers = {
-                { "blink.cmp.sources.lsp", name = "LSP" },
-                { "blink.cmp.sources.path", name = "Path", score_offset = 3 },
-                { "blink.cmp.sources.snippets", name = "Snippets", score_offset = -3 },
-                { "blink.cmp.sources.buffer", name = "Buffer", fallback_for = { "LSP" } },
-            },
+            -- sources = {
+            -- completion = {
+            --     enabled_providers = { "lsp", "path", "snippets", "buffer" },
+            -- },
+
+            -- providers = {
+            --     lazydev = {
+            --         name = "lazydev",
+            --         module = "blink.compat",
+            --         score_offset = 3,
+            --         opts = {},
+            --     },
+            -- ["vim-dadbod-completion"] = {
+            --     name = "vim-dadbod-completion",
+            --     module = "blink.compat",
+            --     score_offset = 3,
+            --     opts = {},
+            -- },
+            -- },
+            -- },
             keymap = {
-                accept = "<C-a>",
-                select_prev = { "<Up>", "<C-k>", "<C-p>" },
-                select_next = { "<Down>", "<C-j>", "<C-n>" },
+                ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
+                ["<C-e>"] = { "hide" },
+                ["<C-y>"] = { "select_and_accept" },
+                ["<C-a>"] = { "select_and_accept" },
+
+                ["<C-p>"] = { "select_prev", "fallback" },
+                ["<C-n>"] = { "select_next", "fallback" },
+                ["<C-k>"] = { "select_prev", "fallback" },
+                ["<C-j>"] = { "select_next", "fallback" },
+                ["<Up>"] = { "select_prev", "fallback" },
+                ["<Down>"] = { "select_next", "fallback" },
+
+                ["<C-b>"] = { "scroll_documentation_up", "fallback" },
+                ["<C-f>"] = { "scroll_documentation_down", "fallback" },
+
+                ["<Tab>"] = { "snippet_forward", "fallback" },
+                ["<S-Tab>"] = { "snippet_backward", "fallback" },
             },
         },
     },

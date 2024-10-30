@@ -7,7 +7,6 @@ return {
                 lsp = {
                     undercurl = true,
                 },
-                type = { bold = true },
             },
         },
     },
