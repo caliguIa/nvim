@@ -18,9 +18,28 @@ return {
             { "gD", false },
             { "gI", false },
             { "gK", false },
+            { "[d", false },
+            { "]d", false },
             { "<leader>cl", false },
+            { "<leader>ca", false },
         })
         end,
+    },
+    {
+        "rachartier/tiny-code-action.nvim",
+        dependencies = {
+            { "nvim-lua/plenary.nvim" },
+            { "nvim-telescope/telescope.nvim" },
+        },
+        event = "LspAttach",
+        opts = {},
+        keys = {
+            {
+                "<leader>ca",
+                function() require("tiny-code-action").code_action() end,
+                desc = "Code action",
+            },
+        },
     },
     {
         "neovim/nvim-lspconfig",
@@ -36,7 +55,7 @@ return {
                     style = "minimal",
                     border = "none",
                     source = "if_many",
-                    header = "Diagnostics",
+                    header = "",
                     prefix = "",
                 },
             },

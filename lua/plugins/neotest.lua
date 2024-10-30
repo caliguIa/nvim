@@ -11,7 +11,6 @@ return {
             ["rustaceanvim.neotest"] = {},
             ["neotest-phpunit"] = {},
             ["neotest-vitest"] = {
-                -- vitestCommand = "bunx vitest",
                 cwd = function(file)
                     local util = require "neotest-vitest.util"
                     return util.find_node_modules_ancestor(file)

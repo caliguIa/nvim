@@ -1,8 +1,22 @@
 return {
     {
+        "aktersnurra/no-clown-fiesta.nvim",
+        opts = {
+            transparent = false, -- Enable this to disable the bg color
+            styles = {
+                lsp = {
+                    undercurl = true,
+                },
+                type = { bold = true },
+            },
+        },
+    },
+    -- "datsfilipe/vesper.nvim",
+    -- "kdheepak/monochrome.nvim",
+    {
         "LazyVim/LazyVim",
         opts = {
-            colorscheme = "catppuccin-mocha",
+            colorscheme = "no-clown-fiesta",
         },
     },
 }

@@ -4,21 +4,31 @@ return {
     {
         "nvim-lualine/lualine.nvim",
         opts = {
+            options = {
+                theme = "auto",
+                disabled_filetypes = { statusline = { "dashboard", "alpha", "ministarter", "oil", "NeogitStatus" } },
+            },
             sections = {
-                lualine_c = {
-                    LazyVim.lualine.root_dir(),
+                lualine_a = { LazyVim.lualine.root_dir { icon = "", color = "" } },
+                lualine_b = { LazyVim.lualine.pretty_path { length = 7 } },
+                lualine_c = {},
+                lualine_x = {
+                    {
+                        "diff",
+                        symbols = { added = "+", modified = "~", removed = "-" },
+                        separator = " ",
+                    },
+                },
+                lualine_y = {
                     {
                         "diagnostics",
-                        symbols = {
-                            error = icons.diagnostics.Error,
-                            warn = icons.diagnostics.Warn,
-                            info = icons.diagnostics.Info,
-                            hint = icons.diagnostics.Hint,
-                        },
+                        symbols = { error = "E:", warn = "W:", info = "I:", hint = "H:" },
+                        colored = true,
+                        always_visible = false,
+                        separator = " ",
                     },
-                    { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
-                    { LazyVim.lualine.pretty_path { length = 6 } },
                 },
+                lualine_z = { { "branch", separator = " ", icon = "" } },
             },
         },
     },

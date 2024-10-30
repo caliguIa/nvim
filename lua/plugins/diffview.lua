@@ -7,14 +7,9 @@ return {
             desc = "Open diffview",
         },
         {
-            "<leader>gh",
-            vim.cmd.diffviewfilehistory,
-            desc = "File history",
-        },
-        {
-            "<leader>gfb",
+            "<leader>ghf",
             function() vim.cmd.DiffviewFileHistory(vim.api.nvim_buf_get_name(0)) end,
-            desc = "Buffer history",
+            desc = "File history",
         },
     },
 }

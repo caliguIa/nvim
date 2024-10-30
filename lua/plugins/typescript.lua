@@ -10,14 +10,17 @@ return {
                     settings = {
                         typescript = {
                             inlayHints = {
-                                enumMemberValues = { enabled = true },
+                                enumMemberValues = { enabled = false },
                                 functionLikeReturnTypes = { enabled = false },
-                                parameterNames = { enabled = "literals" },
+                                parameterNames = { enabled = false },
                                 parameterTypes = { enabled = false },
                                 propertyDeclarationTypes = { enabled = false },
                                 variableTypes = { enabled = false },
                             },
                         },
+                    },
+                    keys = {
+                        { "<leader>co", false },
                     },
                 },
                 eslint = {
