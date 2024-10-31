@@ -8,7 +8,7 @@ return {
         signcolumn = false,
         linehl = false,
         numhl = true,
-        word_diff = true,
+        word_diff = false,
         sign_priority = 9,
         watch_gitdir = {
             interval = 1000,

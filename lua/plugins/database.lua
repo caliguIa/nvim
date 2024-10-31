@@ -11,13 +11,9 @@ return {
             "DBUIAddConnection",
             "DBUIFindBuffer",
         },
-        keys = function()
-            return {
-                { "<leader>db", "<cmd>DBUIToggle<CR>", desc = "Toggle DBUI" },
-            }
-        end,
         init = function()
             local base = vim.fs.joinpath(os.getenv "HOME", "tmp", "queries")
+            vim.keymap.set("n", "<leader>db", "<CMD>DBUIToggle<CR>", { desc = "Toggle DBUI", silent = true })
 
             vim.g.db_ui_use_nerd_fonts = 1
             vim.g.db_ui_winwidth = 40
