@@ -1,9 +1,7 @@
--- local icons = LazyVim.config.icons.diagnostics
-
 return {
     {
         "rachartier/tiny-inline-diagnostic.nvim",
-        event = "LspAttach",
-        opts = {},
+        event = "VeryLazy", -- Or `LspAttach`
+        config = function() require("tiny-inline-diagnostic").setup() end,
     },
 }
