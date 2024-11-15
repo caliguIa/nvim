@@ -10,8 +10,6 @@ return {
             },
         },
     },
-    -- "datsfilipe/vesper.nvim",
-    -- "kdheepak/monochrome.nvim",
     {
         "LazyVim/LazyVim",
         opts = {

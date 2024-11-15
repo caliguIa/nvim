@@ -6,6 +6,14 @@ return {
         "neovim/nvim-lspconfig",
         opts = {
             servers = {
+                denols = {
+                    root_dir = lspconfig.util.root_pattern("deno.json", "deno.jsonc"),
+                    init_options = {
+                        enable = true,
+                        lint = true,
+                        unstable = true,
+                    },
+                },
                 vtsls = {
                     settings = {
                         typescript = {
@@ -69,30 +77,27 @@ return {
             },
         },
     },
-    -- {
-    --     "dmmulroy/ts-error-translator.nvim",
-    --     ft = ft,
-    --     opts = {},
-    -- },
     {
-        "dmmulroy/tsc.nvim",
-        ft = ft,
+        "stevearc/conform.nvim",
         opts = {
-
-            run_as_monorepo = false,
-            use_trouble_qflist = true,
-        },
-        keys = {
-            {
-                "<leader>Ts",
-                "<CMD>TSC<CR>",
-                desc = "TypeScript check",
+            stop_after_first = true,
+            formatters_by_ft = {
+                typescript = { "deno_fmt", "prettier" },
+                typescriptreact = { "deno_fmt", "prettier" },
             },
-            {
-                "<leader>Tx",
-                "<CMD>TSCStop<CR>",
-                desc = "TypeScript check stop",
+            formatters = {
+                deno_fmt = {
+                    cwd = require("conform.util").root_file {
+                        "deno.json",
+                    },
+                    require_cwd = true,
+                },
             },
         },
+    },
+    {
+        "dmmulroy/ts-error-translator.nvim",
+        ft = ft,
+        opts = {},
     },
 }
