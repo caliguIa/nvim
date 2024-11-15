@@ -6,6 +6,11 @@ return {
             keymap = {
                 preset = "default",
             },
+            windows = {
+                ghost_text = {
+                    enabled = false,
+                },
+            },
         },
     },
 }
