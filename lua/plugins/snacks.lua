@@ -1,3 +1,5 @@
+local logo = [[ neobim ]]
+
 return {
     "folke/snacks.nvim",
     priority = 1000,
@@ -8,5 +10,8 @@ return {
         lazygit = { enabled = false },
         notifier = { style = "compact" },
         terminal = { enabled = false },
+        dashboard = { preset = {
+            header = logo,
+        } },
     },
 }
