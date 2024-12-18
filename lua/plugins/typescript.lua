@@ -97,6 +97,7 @@ return {
     },
     {
         "dmmulroy/ts-error-translator.nvim",
+        enabled = false,
         ft = ft,
         opts = {},
     },

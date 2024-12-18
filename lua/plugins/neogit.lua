@@ -3,15 +3,15 @@ return {
     dependencies = {
         "nvim-lua/plenary.nvim",
         "sindrets/diffview.nvim",
-        "nvim-telescope/telescope.nvim",
+        "ibhagwan/fzf-lua",
     },
     opts = {
         disable_builtin_notifications = true,
         disable_insert_on_commit = "auto",
         integrations = {
             diffview = true,
-            telescope = true,
-            fzf_lua = false,
+            telescope = false,
+            fzf_lua = true,
         },
         sections = {
             recent = {

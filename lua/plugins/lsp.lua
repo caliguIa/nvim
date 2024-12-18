@@ -9,9 +9,10 @@ return {
             local Keys = require("lazyvim.plugins.lsp.keymaps").get()
         -- stylua: ignore
         vim.list_extend(Keys, {
-            { "gd", function() require("telescope.builtin").lsp_definitions({ reuse_win = true }) end, desc = "Goto Definition", has = "definition" },
-            { "gr", "<cmd>Telescope lsp_references<cr>", desc = "References", nowait = true },
-            { "gt", function() require("telescope.builtin").lsp_type_definitions({ reuse_win = true }) end, desc = "Goto Type Definition" },
+            { "gd", "<cmd>FzfLua lsp_definitions     jump_to_single_result=true ignore_current_line=true<cr>", desc = "Goto Definition", has = "definition" },
+            { "gr", "<cmd>FzfLua lsp_references      jump_to_single_result=true ignore_current_line=true<cr>", desc = "References", nowait = true },
+            { "gI", "<cmd>FzfLua lsp_implementations jump_to_single_result=true ignore_current_line=true<cr>", desc = "Goto Implementation" },
+            { "gt", "<cmd>FzfLua lsp_typedefs        jump_to_single_result=true ignore_current_line=true<cr>", desc = "Goto T[y]pe Definition" },
             { "<leader>rn", vim.lsp.buf.rename, desc = "Rename", has = "rename" },
             { "<leader>rN", Snacks.rename.rename_file, desc = "Rename File", mode = {"n"}, has = { "workspace/didRenameFiles", "workspace/willRenameFiles" } },
             { "gy", false },
@@ -21,25 +22,8 @@ return {
             { "[d", false },
             { "]d", false },
             { "<leader>cl", false },
-            { "<leader>ca", false },
         })
         end,
-    },
-    {
-        "rachartier/tiny-code-action.nvim",
-        dependencies = {
-            { "nvim-lua/plenary.nvim" },
-            { "nvim-telescope/telescope.nvim" },
-        },
-        event = "LspAttach",
-        opts = {},
-        keys = {
-            {
-                "<leader>ca",
-                function() require("tiny-code-action").code_action() end,
-                desc = "Code action",
-            },
-        },
     },
     {
         "neovim/nvim-lspconfig",

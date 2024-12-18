@@ -5,8 +5,8 @@ return {
             {
                 mode = { "n", "v" },
                 { "<leader>m", group = "harpoon" },
-                { "<leader>T", group = "typescript" },
-                { "<leader>L", group = "laravel" },
+                -- { "<leader>T", group = "typescript" },
+                -- { "<leader>L", group = "laravel" },
             },
         },
     },

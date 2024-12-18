@@ -1,13 +1,13 @@
 {
   "extras": [
-    "lazyvim.plugins.extras.coding.blink",
     "lazyvim.plugins.extras.ai.copilot",
+    "lazyvim.plugins.extras.coding.blink",
+    "lazyvim.plugins.extras.coding.luasnip",
     "lazyvim.plugins.extras.coding.mini-comment",
     "lazyvim.plugins.extras.coding.mini-surround",
-    "lazyvim.plugins.extras.coding.neogen",
+    "lazyvim.plugins.extras.editor.aerial",
     "lazyvim.plugins.extras.editor.harpoon2",
     "lazyvim.plugins.extras.editor.inc-rename",
-    "lazyvim.plugins.extras.editor.telescope",
     "lazyvim.plugins.extras.formatting.prettier",
     "lazyvim.plugins.extras.lang.docker",
     "lazyvim.plugins.extras.lang.git",
@@ -16,7 +16,6 @@
     "lazyvim.plugins.extras.lang.nix",
     "lazyvim.plugins.extras.lang.php",
     "lazyvim.plugins.extras.lang.rust",
-    "lazyvim.plugins.extras.lang.sql",
     "lazyvim.plugins.extras.lang.toml",
     "lazyvim.plugins.extras.lang.typescript",
     "lazyvim.plugins.extras.linting.eslint",
@@ -24,11 +23,10 @@
     "lazyvim.plugins.extras.ui.treesitter-context",
     "lazyvim.plugins.extras.util.dot",
     "lazyvim.plugins.extras.util.mini-hipatterns",
-    "lazyvim.plugins.extras.util.project",
-    "lazyvim.plugins.extras.util.startuptime"
+    "lazyvim.plugins.extras.util.project"
   ],
   "news": {
-    "NEWS.md": "7429"
+    "NEWS.md": "10960"
   },
   "version": 7
 }

@@ -5,13 +5,11 @@ return {
     priority = 1000,
     lazy = false,
     opts = {
-        git = { enabled = false },
-        gitbrowse = { enabled = false },
         lazygit = { enabled = false },
-        notifier = { style = "compact" },
         terminal = { enabled = false },
-        dashboard = { preset = {
-            header = logo,
-        } },
+        animate = { enabled = false },
+        dim = { enabled = false },
+        zen = { enabled = false },
+        dashboard = { enabled = false, preset = { header = logo } },
     },
 }
