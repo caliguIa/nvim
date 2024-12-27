@@ -6,8 +6,6 @@ now(function() require("mini.starter").setup() end)
 
 now(function() require("mini.statusline").setup() end)
 
-now(function() require("mini.tabline").setup() end)
-
 now(function()
     require("mini.icons").setup({
         use_file_extension = function(ext, _)
@@ -99,13 +97,16 @@ end)
 
 later(function()
     require("mini.diff").setup()
-    local rhs = function() return MiniDiff.operator("yank") .. "gh" end
-    vim.keymap.set("n", "ghy", rhs, { expr = true, remap = true, desc = "Copy hunk's reference lines" })
-end)
+    local function make_operator_rhs(operation)
+        return function() 
+            return MiniDiff.operator(operation) .. (operation == 'yank' and 'gh' or '')
+        end
+    end
 
-later(function()
-    require("mini.files").setup({ windows = { preview = true } })
-    keymap("n", [[<leader>fe]], function() require("mini.files").open() end, { desc = "File explorer" })
+    keymap("n", "ghy", make_operator_rhs('yank'), { expr = true, remap = true, desc = "Copy hunk's reference lines" })
+    keymap("n", "ghr", make_operator_rhs('reset'), { expr = true, remap = true, desc = "Reset hunk" })
+    keymap("n", "ghs", make_operator_rhs('apply'), { expr = true, remap = true, desc = "Apply hunk" })
+    keymap("n", "ghp", function() return MiniDiff.toggle_overlay() end, { expr = true, remap = true, desc = "Toggle diff overlay" })
 end)
 
 later(function() require("mini.git").setup() end)
