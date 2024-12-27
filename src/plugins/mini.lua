@@ -1,6 +1,19 @@
 add({ name = "mini.nvim", checkout = "HEAD" })
 
-now(function() require("mini.sessions").setup() end)
+now(function()
+  local filterout_lua_diagnosing = function(notif_arr)
+    local not_diagnosing = function(notif) return not vim.startswith(notif.msg, 'lua_ls: Diagnosing') end
+    notif_arr = vim.tbl_filter(not_diagnosing, notif_arr)
+    return MiniNotify.default_sort(notif_arr)
+  end
+  require('mini.notify').setup({
+    content = { sort = filterout_lua_diagnosing },
+    window = { config = { border = 'single' } },
+  })
+  vim.notify = MiniNotify.make_notify()
+end)
+
+-- now(function() require("mini.sessions").setup() end)
 
 now(function() require("mini.starter").setup() end)
 
@@ -128,23 +141,35 @@ end)
 
 later(function() require("mini.indentscope").setup() end)
 
--- later(function() require("mini.jump").setup() end)
+later(function() require("mini.jump").setup() end)
 
--- later(function()
---     local jump2d = require("mini.jump2d")
---     jump2d.setup({
---         spotter = jump2d.gen_pattern_spotter("[^%s%p]+"),
---         view = { dim = true, n_steps_ahead = 2 },
---     })
--- end)
+later(function()
+    local jump2d = require("mini.jump2d")
+    jump2d.setup({
+        spotter = jump2d.gen_pattern_spotter("[^%s%p]+"),
+        view = { dim = true, n_steps_ahead = 2 },
+    })
+end)
+
+later(function()
+  local map = require('mini.map')
+  local gen_integr = map.gen_integration
+  local encode_symbols = map.gen_encode_symbols.dot('3x2')
+  map.setup({
+    symbols = { encode = encode_symbols },
+    integrations = { gen_integr.builtin_search(), gen_integr.diff(), gen_integr.diagnostic() },
+  })
+  vim.keymap.set('n', [[\h]], ':let v:hlsearch = 1 - v:hlsearch<CR>', { desc = 'Toggle hlsearch' })
+  for _, key in ipairs({ 'n', 'N', '*' }) do
+    vim.keymap.set('n', key, key .. 'zv<Cmd>lua MiniMap.refresh({}, { lines = false, scrollbar = false })<CR>')
+  end
+end)
 
 later(function()
     require("mini.misc").setup({ make_global = { "put", "put_text", "stat_summary", "bench_time" } })
     MiniMisc.setup_auto_root()
     MiniMisc.setup_termbg_sync()
 end)
-
-later(function() require("mini.move").setup({ options = { reindent_linewise = false } }) end)
 
 later(function()
     local remap = function(mode, lhs_from, lhs_to)
@@ -159,33 +184,11 @@ later(function()
     require("mini.operators").setup()
 end)
 
-later(function()
-    require("mini.pairs").setup({ modes = { insert = true, command = true } })
-    -- vim.keymap.set("i", "<CR>", "v:lua.Config.cr_action()", { expr = true })
-end)
-
-later(function()
-    require("mini.pick").setup({ window = { config = { border = "single" } } })
-    vim.ui.select = MiniPick.ui_select
-    vim.keymap.set("n", ",", [[<Cmd>Pick buf_lines scope='current' preserve_order=true<CR>]], { nowait = true })
-
-    MiniPick.registry.projects = function()
-        local cwd = vim.fn.expand("~/repos")
-        local choose = function(item)
-            vim.schedule(function() MiniPick.builtin.files(nil, { source = { cwd = item.path } }) end)
-        end
-        return MiniExtra.pickers.explorer({ cwd = cwd }, { source = { choose = choose } })
-    end
-end)
+later(function() require("mini.pairs").setup({ modes = { insert = true, command = true } }) end)
 
 later(function() require("mini.splitjoin").setup() end)
 
-later(function()
-    require("mini.surround").setup({ search_method = "cover_or_next" })
-    -- Disable `s` shortcut (use `cl` instead) for safer usage of 'mini.surround'
-    vim.keymap.set({ "n", "x" }, "s", "<Nop>")
-end)
+later(function() require("mini.surround").setup({ search_method = "cover_or_next" }) end)
 
-later(function() require("mini.trailspace").setup() end)
+-- later(function() require("mini.visits").setup() end)
 
-later(function() require("mini.visits").setup() end)
