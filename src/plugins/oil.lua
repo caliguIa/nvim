@@ -1,6 +1,6 @@
 now(function()
-  add("stevearc/oil.nvim")
-  require("oil").setup({
+    add("stevearc/oil.nvim")
+    require("oil").setup({
         lsp_file_methods = {
             autosave_changes = true,
         },

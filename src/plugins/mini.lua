@@ -1,16 +1,16 @@
 add({ name = "mini.nvim", checkout = "HEAD" })
 
 now(function()
-  local filterout_lua_diagnosing = function(notif_arr)
-    local not_diagnosing = function(notif) return not vim.startswith(notif.msg, 'lua_ls: Diagnosing') end
-    notif_arr = vim.tbl_filter(not_diagnosing, notif_arr)
-    return MiniNotify.default_sort(notif_arr)
-  end
-  require('mini.notify').setup({
-    content = { sort = filterout_lua_diagnosing },
-    window = { config = { border = 'single' } },
-  })
-  vim.notify = MiniNotify.make_notify()
+    local filterout_lua_diagnosing = function(notif_arr)
+        local not_diagnosing = function(notif) return not vim.startswith(notif.msg, "lua_ls: Diagnosing") end
+        notif_arr = vim.tbl_filter(not_diagnosing, notif_arr)
+        return MiniNotify.default_sort(notif_arr)
+    end
+    require("mini.notify").setup({
+        content = { sort = filterout_lua_diagnosing },
+        window = { config = { border = "single" } },
+    })
+    vim.notify = MiniNotify.make_notify()
 end)
 
 -- now(function() require("mini.sessions").setup() end)
@@ -111,15 +111,18 @@ end)
 later(function()
     require("mini.diff").setup()
     local function make_operator_rhs(operation)
-        return function() 
-            return MiniDiff.operator(operation) .. (operation == 'yank' and 'gh' or '')
-        end
+        return function() return MiniDiff.operator(operation) .. (operation == "yank" and "gh" or "") end
     end
 
-    keymap("n", "ghy", make_operator_rhs('yank'), { expr = true, remap = true, desc = "Copy hunk's reference lines" })
-    keymap("n", "ghr", make_operator_rhs('reset'), { expr = true, remap = true, desc = "Reset hunk" })
-    keymap("n", "ghs", make_operator_rhs('apply'), { expr = true, remap = true, desc = "Apply hunk" })
-    keymap("n", "ghp", function() return MiniDiff.toggle_overlay() end, { expr = true, remap = true, desc = "Toggle diff overlay" })
+    keymap("n", "ghy", make_operator_rhs("yank"), { expr = true, remap = true, desc = "Copy hunk's reference lines" })
+    keymap("n", "ghr", make_operator_rhs("reset"), { expr = true, remap = true, desc = "Reset hunk" })
+    keymap("n", "ghs", make_operator_rhs("apply"), { expr = true, remap = true, desc = "Apply hunk" })
+    keymap(
+        "n",
+        "ghp",
+        function() return MiniDiff.toggle_overlay() end,
+        { expr = true, remap = true, desc = "Toggle diff overlay" }
+    )
 end)
 
 later(function() require("mini.git").setup() end)
@@ -152,17 +155,17 @@ later(function()
 end)
 
 later(function()
-  local map = require('mini.map')
-  local gen_integr = map.gen_integration
-  local encode_symbols = map.gen_encode_symbols.dot('3x2')
-  map.setup({
-    symbols = { encode = encode_symbols },
-    integrations = { gen_integr.builtin_search(), gen_integr.diff(), gen_integr.diagnostic() },
-  })
-  vim.keymap.set('n', [[\h]], ':let v:hlsearch = 1 - v:hlsearch<CR>', { desc = 'Toggle hlsearch' })
-  for _, key in ipairs({ 'n', 'N', '*' }) do
-    vim.keymap.set('n', key, key .. 'zv<Cmd>lua MiniMap.refresh({}, { lines = false, scrollbar = false })<CR>')
-  end
+    local map = require("mini.map")
+    local gen_integr = map.gen_integration
+    local encode_symbols = map.gen_encode_symbols.dot("3x2")
+    map.setup({
+        symbols = { encode = encode_symbols },
+        integrations = { gen_integr.builtin_search(), gen_integr.diff(), gen_integr.diagnostic() },
+    })
+    vim.keymap.set("n", [[\h]], ":let v:hlsearch = 1 - v:hlsearch<CR>", { desc = "Toggle hlsearch" })
+    for _, key in ipairs({ "n", "N", "*" }) do
+        vim.keymap.set("n", key, key .. "zv<Cmd>lua MiniMap.refresh({}, { lines = false, scrollbar = false })<CR>")
+    end
 end)
 
 later(function()
@@ -191,4 +194,3 @@ later(function() require("mini.splitjoin").setup() end)
 later(function() require("mini.surround").setup({ search_method = "cover_or_next" }) end)
 
 -- later(function() require("mini.visits").setup() end)
-
