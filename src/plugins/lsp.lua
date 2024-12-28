@@ -225,59 +225,7 @@ later(function()
                 },
             })
 
-            local ns = vim.api.nvim_create_namespace("cursor_line_diagnostics")
-            local diagnostic_prefix = "󰧞 "
-
-            local function show_diagnostics_on_line()
-                local cursor_line = vim.api.nvim_win_get_cursor(0)[1] - 1
-
-                -- Clear any existing virtual text
-                vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
-
-                -- Get diagnostics for the current line
-                local diagnostics = vim.diagnostic.get(0, { lnum = cursor_line })
-
-                if #diagnostics > 0 then
-                    -- Get the current line's text width for padding subsequent lines
-                    local line_text = vim.api.nvim_get_current_line()
-                    local padding = string.rep(" ", vim.fn.strdisplaywidth(line_text) + 1)
-
-                    -- First diagnostic goes at the end of the line
-                    local first_diagnostic = {
-                        {
-                            diagnostic_prefix .. diagnostics[1].message,
-                            "DiagnosticVirtualText" .. vim.diagnostic.severity[diagnostics[1].severity],
-                        },
-                    }
-
-                    -- Additional diagnostics go on virtual lines below
-                    local virt_lines = {}
-                    if #diagnostics > 1 then
-                        for i = 2, #diagnostics do
-                            local d = diagnostics[i]
-                            table.insert(virt_lines, {
-                                { padding, "" }, -- Add padding first
-                                {
-                                    diagnostic_prefix .. d.message,
-                                    "DiagnosticVirtualText" .. vim.diagnostic.severity[d.severity],
-                                },
-                            })
-                        end
-                    end
-
-                    -- Apply the extmark with both virt_text and virt_lines
-                    vim.api.nvim_buf_set_extmark(0, ns, cursor_line, 0, {
-                        virt_text = first_diagnostic,
-                        virt_text_pos = "eol",
-                        virt_lines = #virt_lines > 0 and virt_lines or nil,
-                    })
-                end
-            end
-
-            -- Create autocommands for cursor movement and diagnostic changes
-            vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "DiagnosticChanged" }, {
-                callback = show_diagnostics_on_line,
-            })
+            require("zendiagram").setup()
 
             if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
                 keymap(
