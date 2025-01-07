@@ -1,179 +1,275 @@
 local M = {}
 
--- Default configuration
-local defaults = {
-    prefix = "󰧞 ", -- Prefix character for diagnostic messages
-    clear_on_insert = true, -- Clear virtual text when entering insert mode
-    display_mode = "overlay", -- Options: "shift" (default) or "overlay"
-    max_diagnostics = 3, -- Maximum number of diagnostics to show
-    update_events = { -- Events that trigger updates
-        "CursorMoved",
-        "DiagnosticChanged",
-        "InsertLeave",
-        "TextChanged",
-        "TextChangedI",
-        "InsertChange",
-    },
-}
+-- Cache vim APIs for performance
+local api = vim.api
+local vdiagnostic = vim.diagnostic
+local fn = vim.fn
 
 -- Module state
-local config = {}
-local ns_id = vim.api.nvim_create_namespace("cursor_line_diagnostics")
+local state = {
+    config = {},
+    last_line = nil,
+    last_diagnostics = nil,
+    debounce_timer = nil,
+    ns_id = api.nvim_create_namespace("cursor_line_diagnostics"),
+}
 
--- Generate unique key for diagnostic
+-- Events that trigger updates (now hardcoded)
+local update_events = {
+    "CursorMoved",
+    "DiagnosticChanged",
+    "TextChanged",
+    "TextChangedI",
+    "InsertChange",
+}
+
+-- Default configuration
+local defaults = {
+    prefix = "󰧞 ",
+    clear_on_insert = true,
+    display_mode = "overlay", -- "shift", "overlay", or "single"
+    max_diagnostics = 3,
+    debounce_ms = 50,
+}
+
+-- Utility Functions
+local function validate_config(opts)
+    assert(type(opts.max_diagnostics) == "number", "max_diagnostics must be a number")
+    assert(
+        opts.display_mode == "shift" or opts.display_mode == "overlay" or opts.display_mode == "single",
+        "display_mode must be 'shift', 'overlay', or 'single'"
+    )
+    assert(type(opts.debounce_ms) == "number", "debounce_ms must be a number")
+end
+
+local function clear_virtual_text() api.nvim_buf_clear_namespace(0, state.ns_id, 0, -1) end
+
 local function diagnostic_key(diagnostic, line)
     return string.format("%d:%s:%s", line, diagnostic.message, diagnostic.severity or "")
 end
 
--- Utility function to clear diagnostics
-local function clear_virtual_text() vim.api.nvim_buf_clear_namespace(0, ns_id, 0, -1) end
+local function get_cursor_info()
+    local cursor_line = api.nvim_win_get_cursor(0)[1] - 1
+    local win = api.nvim_get_current_win()
+    local win_height = api.nvim_win_get_height(win)
+    local win_top = fn.line("w0") - 1
 
--- Main function to show diagnostics
-local function handle_diagnostics()
-    if vim.fn.mode():match("^i") then
-        clear_virtual_text()
-        return
+    return {
+        line = cursor_line,
+        win_height = win_height,
+        relative_pos = cursor_line - win_top,
+        text = api.nvim_get_current_line(),
+    }
+end
+
+local function has_diagnostics_changed(cursor_line, diagnostics)
+    if state.last_line ~= cursor_line then return true end
+    if #(state.last_diagnostics or {}) ~= #diagnostics then return true end
+    return false
+end
+
+-- Display Functions
+local function create_diagnostic_text(diagnostic_item)
+    return {
+        {
+            state.config.prefix .. diagnostic_item.message,
+            "DiagnosticVirtualText" .. vim.diagnostic.severity[diagnostic_item.severity],
+        },
+    }
+end
+
+local function display_single_mode(diagnostics, cursor_info)
+    if #diagnostics == 0 then return end
+
+    local displayed_diagnostics = {}
+    local combined_virt_text = {}
+
+    for _, d in ipairs(diagnostics) do
+        local key = diagnostic_key(d, cursor_info.line)
+        if not displayed_diagnostics[key] then
+            -- Add separator between diagnostics
+            if #combined_virt_text > 0 then table.insert(combined_virt_text, { " ", "Comment" }) end
+
+            -- Add diagnostic text
+            table.insert(combined_virt_text, {
+                state.config.prefix .. d.message,
+                "DiagnosticVirtualText" .. vim.diagnostic.severity[d.severity],
+            })
+            displayed_diagnostics[key] = true
+        end
     end
 
-    local cursor_line = vim.api.nvim_win_get_cursor(0)[1] - 1
-    clear_virtual_text()
+    if #combined_virt_text > 0 then
+        api.nvim_buf_set_extmark(0, state.ns_id, cursor_info.line, 0, {
+            virt_text = combined_virt_text,
+            virt_text_pos = "eol",
+        })
+    end
+end
+
+local function display_shift_mode(diagnostics, cursor_info)
+    if #diagnostics == 0 then return end
+
     local displayed_diagnostics = {}
-    local diagnostics = vim.diagnostic.get(0, { lnum = cursor_line })
+    local first_diagnostic = diagnostics[1]
+    local first_key = diagnostic_key(first_diagnostic, cursor_info.line)
+    local padding = string.rep(" ", fn.strdisplaywidth(cursor_info.text) + 1)
 
-    if #diagnostics > 0 then
-        -- Limit number of diagnostics shown
-        diagnostics = vim.list_slice(diagnostics, 1, config.max_diagnostics)
+    if not displayed_diagnostics[first_key] then
+        -- Create first diagnostic line
+        local first_virt_text = create_diagnostic_text(first_diagnostic)
+        displayed_diagnostics[first_key] = true
 
-        local line_text = vim.api.nvim_get_current_line()
-
-        -- Get window information
-        local win = vim.api.nvim_get_current_win()
-        local win_height = vim.api.nvim_win_get_height(win)
-
-        -- Get the window-relative position of the cursor
-        local win_top = vim.fn.line("w0") - 1 -- Get first line visible in window
-        local cursor_relative_pos = cursor_line - win_top
-
-        if config.display_mode == "shift" then
-            local first_diagnostic = diagnostics[1]
-            local first_key = diagnostic_key(first_diagnostic, cursor_line)
-
-            local padding = string.rep(" ", vim.fn.strdisplaywidth(line_text))
-
-            if not displayed_diagnostics[first_key] then
-                local first_virt_text = {
+        -- Create subsequent diagnostic lines
+        local virt_lines = {}
+        for i = 2, #diagnostics do
+            local d = diagnostics[i]
+            local key = diagnostic_key(d, cursor_info.line)
+            if not displayed_diagnostics[key] then
+                table.insert(virt_lines, {
+                    { padding, "" },
                     {
-                        config.prefix .. first_diagnostic.message,
-                        "DiagnosticVirtualText" .. vim.diagnostic.severity[first_diagnostic.severity],
+                        state.config.prefix .. d.message,
+                        "DiagnosticVirtualText" .. vim.diagnostic.severity[d.severity],
                     },
-                }
-                displayed_diagnostics[first_key] = true
-
-                local virt_lines = {}
-                if #diagnostics > 1 then
-                    for i = 2, #diagnostics do
-                        local d = diagnostics[i]
-                        local key = diagnostic_key(d, cursor_line)
-                        if not displayed_diagnostics[key] then
-                            table.insert(virt_lines, {
-                                { padding, "" },
-                                {
-                                    config.prefix .. d.message,
-                                    "DiagnosticVirtualText" .. vim.diagnostic.severity[d.severity],
-                                },
-                            })
-                            displayed_diagnostics[key] = true
-                        end
-                    end
-                end
-
-                vim.api.nvim_buf_set_extmark(0, ns_id, cursor_line, 0, {
-                    virt_text = first_virt_text,
-                    virt_text_pos = "eol",
-                    virt_lines = #virt_lines > 0 and virt_lines or nil,
                 })
+                displayed_diagnostics[key] = true
             end
-        else
-            -- Overlay behavior
-            -- Calculate the position for the first diagnostic
-            local first_diagnostic = diagnostics[1]
-            local first_key = diagnostic_key(first_diagnostic, cursor_line)
+        end
 
-            -- Calculate the col position where EOL virtual text would appear
-            local eol_col = vim.fn.strdisplaywidth(line_text) + 1
+        -- Set extmark with all diagnostic information
+        api.nvim_buf_set_extmark(0, state.ns_id, cursor_info.line, 0, {
+            virt_text = first_virt_text,
+            virt_text_pos = "eol",
+            virt_lines = #virt_lines > 0 and virt_lines or nil,
+        })
+    end
+end
 
-            -- Calculate available space
-            local needed_lines = #diagnostics
-            local lines_below = win_height - cursor_relative_pos
+local function display_overlay_mode(diagnostics, cursor_info)
+    if #diagnostics == 0 then return end
 
-            -- Only show diagnostics if we have space
-            if needed_lines <= lines_below then
-                if not displayed_diagnostics[first_key] then
-                    -- Place first diagnostic
-                    vim.api.nvim_buf_set_extmark(0, ns_id, cursor_line, 0, {
-                        virt_text = {
-                            {
-                                config.prefix .. first_diagnostic.message,
-                                "DiagnosticVirtualText" .. vim.diagnostic.severity[first_diagnostic.severity],
-                            },
-                        },
-                        virt_text_pos = "overlay",
-                        virt_text_win_col = eol_col,
-                        priority = 100,
-                    })
-                    displayed_diagnostics[first_key] = true
+    local needed_lines = #diagnostics
+    local lines_below = cursor_info.win_height - cursor_info.relative_pos
 
-                    -- Place subsequent diagnostics
-                    local line_offset = 1 -- Track actual position independent of loop index
-                    for i = 2, #diagnostics do
-                        local d = diagnostics[i]
-                        local key = diagnostic_key(d, cursor_line)
-                        if not displayed_diagnostics[key] then
-                            vim.api.nvim_buf_set_extmark(0, ns_id, cursor_line + line_offset, 0, {
-                                virt_text = {
-                                    {
-                                        config.prefix .. d.message,
-                                        "DiagnosticVirtualText" .. vim.diagnostic.severity[d.severity],
-                                    },
-                                },
-                                virt_text_pos = "overlay",
-                                virt_text_win_col = eol_col,
-                                priority = 100 + line_offset, -- Use line_offset for priority too
-                            })
-                            displayed_diagnostics[key] = true
-                            line_offset = line_offset + 1 -- Only increment when we actually place a diagnostic
-                        end
-                    end
-                end
+    -- Only show diagnostics if we have space
+    if needed_lines > lines_below then return end
+
+    local eol_col = fn.strdisplaywidth(cursor_info.text) + 1
+    local displayed_diagnostics = {}
+
+    -- Place first diagnostic
+    local first_key = diagnostic_key(diagnostics[1], cursor_info.line)
+    if not displayed_diagnostics[first_key] then
+        api.nvim_buf_set_extmark(0, state.ns_id, cursor_info.line, 0, {
+            virt_text = create_diagnostic_text(diagnostics[1]),
+            virt_text_pos = "overlay",
+            virt_text_win_col = eol_col,
+            priority = 100,
+        })
+        displayed_diagnostics[first_key] = true
+
+        -- Place subsequent diagnostics
+        local line_offset = 1
+        for i = 2, #diagnostics do
+            local d = diagnostics[i]
+            local key = diagnostic_key(d, cursor_info.line)
+            if not displayed_diagnostics[key] then
+                api.nvim_buf_set_extmark(0, state.ns_id, cursor_info.line + line_offset, 0, {
+                    virt_text = create_diagnostic_text(d),
+                    virt_text_pos = "overlay",
+                    virt_text_win_col = eol_col,
+                    priority = 100 + line_offset,
+                })
+                displayed_diagnostics[key] = true
+                line_offset = line_offset + 1
             end
         end
     end
 end
 
+-- Main Functions
+local function handle_diagnostics()
+    if fn.mode():match("^i") then
+        clear_virtual_text()
+        return
+    end
+
+    local cursor_info = get_cursor_info()
+    local diagnostics = vdiagnostic.get(0, { lnum = cursor_info.line })
+
+    -- Limit number of diagnostics shown
+    diagnostics = vim.list_slice(diagnostics, 1, state.config.max_diagnostics)
+
+    -- Check if we need to update
+    if not has_diagnostics_changed(cursor_info.line, diagnostics) then return end
+
+    -- Update state
+    state.last_line = cursor_info.line
+    state.last_diagnostics = diagnostics
+
+    -- Clear existing virtual text
+    clear_virtual_text()
+
+    -- Display diagnostics based on mode
+    if state.config.display_mode == "shift" then
+        display_shift_mode(diagnostics, cursor_info)
+    elseif state.config.display_mode == "single" then
+        display_single_mode(diagnostics, cursor_info)
+    else
+        display_overlay_mode(diagnostics, cursor_info)
+    end
+end
+
+local function debounced_handle_diagnostics()
+    if state.debounce_timer then state.debounce_timer:stop() end
+
+    state.debounce_timer = vim.defer_fn(function()
+        handle_diagnostics()
+        state.debounce_timer = nil
+    end, state.config.debounce_ms)
+end
+
+-- Setup Function
 function M.setup(opts)
-    -- Merge user config with defaults
-    config = vim.tbl_deep_extend("force", defaults, opts or {})
+    -- Merge and validate config
+    local user_opts = opts or {}
+    state.config = vim.tbl_deep_extend("force", defaults, user_opts)
+    validate_config(state.config)
 
     -- Disable default virtual text
-    vim.diagnostic.config({
-        virtual_text = false,
-    })
+    vdiagnostic.config({ virtual_text = false })
 
-    -- Create augroup for our autocommands
-    local group = vim.api.nvim_create_augroup("ZenDiagram", { clear = true })
+    -- Create augroup
+    local group = api.nvim_create_augroup("ZenDiagram", { clear = true })
 
-    -- Setup autocommands based on config
-    if config.clear_on_insert then
-        vim.api.nvim_create_autocmd("InsertEnter", {
+    -- Setup InsertEnter autocmd separately if needed
+    if state.config.clear_on_insert then
+        api.nvim_create_autocmd("InsertEnter", {
             group = group,
             callback = clear_virtual_text,
         })
     end
 
-    vim.api.nvim_create_autocmd(config.update_events, {
+    -- Setup InsertLeave autocmd separately to ensure immediate update
+    api.nvim_create_autocmd("InsertLeave", {
         group = group,
-        callback = handle_diagnostics,
+        callback = function()
+            -- Reset last line to force update
+            state.last_line = nil
+            -- Immediate update without debounce
+            vim.schedule(handle_diagnostics)
+        end,
+    })
+
+    -- Setup other events with debouncing
+    api.nvim_create_autocmd(update_events, {
+        group = group,
+        callback = debounced_handle_diagnostics,
     })
 end
+
+-- Public API
+function M.refresh() handle_diagnostics() end
 
 return M
