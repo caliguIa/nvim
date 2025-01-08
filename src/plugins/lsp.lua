@@ -28,7 +28,7 @@ later(function()
                         checkThirdParty = false,
                     },
                     codeLens = {
-                        enable = true,
+                        enable = false,
                     },
                     completion = {
                         callSnippet = "Replace",
@@ -37,9 +37,9 @@ later(function()
                         privateName = { "^_" },
                     },
                     hint = {
-                        enable = true,
+                        enable = false,
                         setType = false,
-                        paramType = true,
+                        paramType = false,
                         paramName = "Disable",
                         semicolon = "Disable",
                         arrayIndex = "Disable",
@@ -71,7 +71,7 @@ later(function()
                 },
             },
         },
-        ts_ls = {},
+        ts_ls = { enabled = false },
         denols = {
             root_dir = lspconfig.util.root_pattern("deno.json", "deno.jsonc"),
             init_options = {
@@ -149,9 +149,7 @@ later(function()
                 },
                 validate = "on",
                 format = true,
-                workingDirecotry = {
-                    mode = "auto",
-                },
+                workingDirectories = { mode = "auto" },
             },
             on_new_config = function(config, new_root_dir)
                 config.settings.workspaceFolder = {
@@ -163,15 +161,15 @@ later(function()
     }
 
     for server, config in pairs(clients) do
-        local server_config = {
-            capabilities = base_capabilities,
-        }
+        local server_config = { capabilities = base_capabilities }
 
         if type(config) == "table" then
             for k, v in pairs(config) do
                 server_config[k] = v
             end
         end
+
+        server_config.capabilities = require("blink.cmp").get_lsp_capabilities(server_config.capabilities)
 
         lspconfig[server].setup(server_config)
     end
@@ -206,7 +204,7 @@ later(function()
                 { desc = "Goto Type Definition" }
             )
             keymap("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename" })
-            keymap("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code Action" })
+            keymap("n", "<leader>ca", "<cmd>FzfLua lsp_code_actions<cr>", { desc = "Code Action" })
             keymap("n", "<leader>e", function() vim.diagnostic.open_float() end, { noremap = true, silent = true })
 
             vim.diagnostic.config({

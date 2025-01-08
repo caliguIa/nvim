@@ -174,18 +174,18 @@ later(function()
     MiniMisc.setup_termbg_sync()
 end)
 
-later(function()
-    local remap = function(mode, lhs_from, lhs_to)
-        local keymap = vim.fn.maparg(lhs_from, mode, false, true)
-        local rhs = keymap.callback or keymap.rhs
-        if rhs == nil then error("Could not remap from " .. lhs_from .. " to " .. lhs_to) end
-        vim.keymap.set(mode, lhs_to, rhs, { desc = keymap.desc })
-    end
-    remap("n", "gx", "<Leader>ox")
-    remap("x", "gx", "<Leader>ox")
-
-    require("mini.operators").setup()
-end)
+-- later(function()
+--     local remap = function(mode, lhs_from, lhs_to)
+--         local keymap = vim.fn.maparg(lhs_from, mode, false, true)
+--         local rhs = keymap.callback or keymap.rhs
+--         if rhs == nil then error("Could not remap from " .. lhs_from .. " to " .. lhs_to) end
+--         vim.keymap.set(mode, lhs_to, rhs, { desc = keymap.desc })
+--     end
+--     remap("n", "gx", "<Leader>ox")
+--     remap("x", "gx", "<Leader>ox")
+--
+--     require("mini.operators").setup()
+-- end)
 
 later(function() require("mini.pairs").setup({ modes = { insert = true, command = true } }) end)
 
@@ -193,4 +193,4 @@ later(function() require("mini.splitjoin").setup() end)
 
 later(function() require("mini.surround").setup({ search_method = "cover_or_next" }) end)
 
--- later(function() require("mini.visits").setup() end)
+later(function() require("mini.visits").setup() end)
