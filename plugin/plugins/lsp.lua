@@ -1,7 +1,9 @@
+local add, later = MiniDeps.add, MiniDeps.now
+
 later(function()
     add("folke/lazydev.nvim")
     add("Bilal2453/luvit-meta")
-    add("neovim/nvim-lspconfig")
+    add({ source = "neovim/nvim-lspconfig", depends = { "saghen/blink.cmp" } })
 
     require("lazydev").setup({
         runtime = vim.env.VIMRUNTIME,

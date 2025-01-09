@@ -1,3 +1,5 @@
+local add, later = MiniDeps.add, MiniDeps.later
+
 later(function()
     add({ source = "catppuccin/nvim", name = "catppuccin" })
 

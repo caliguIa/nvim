@@ -1,3 +1,5 @@
+local add, later = MiniDeps.add, MiniDeps.later
+
 --stylua: ignore
 local ensure_installed = {
     "bash", "c", "cpp", "css", "csv", "diff", "elixir", "git_config", "git_rebase",
@@ -17,7 +19,6 @@ later(function()
         depends = {
             "windwp/nvim-ts-autotag",
             "nvim-treesitter/nvim-treesitter-context",
-            "JoosepAlviste/nvim-ts-context-commentstring",
         },
     })
     ---@diagnostic disable-next-line: missing-fields
@@ -39,4 +40,7 @@ later(function()
     later(function() add({ source = "nvim-treesitter/nvim-treesitter-textobjects" }) end)
 
     require("nvim-ts-autotag").setup()
+
+    add("folke/ts-comments.nvim")
+    require("ts-comments").setup()
 end)

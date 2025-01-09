@@ -1,3 +1,5 @@
+local add, later = MiniDeps.add, MiniDeps.later
+
 local function build_blink(params)
     vim.notify("Building blink.cmp", vim.log.levels.INFO)
     local obj = vim.system({ "nix", "run", ".#build-plugin" }, { cwd = params.path }):wait()

@@ -1,21 +1,35 @@
+local add, now, later = MiniDeps.add, MiniDeps.now, MiniDeps.later
+
 add({ name = "mini.nvim", checkout = "HEAD" })
 
+now(
+    function()
+        require("mini.basics").setup({
+            options = { basic = false },
+            mappings = { windows = true, move_with_alt = true },
+            autocommands = { relnum_in_visual_mode = true },
+        })
+    end
+)
+
 now(function()
+    local not_lua_diagnosing = function(notif) return not vim.startswith(notif.msg, "lua_ls: Diagnosing") end
     local filterout_lua_diagnosing = function(notif_arr)
-        local not_diagnosing = function(notif) return not vim.startswith(notif.msg, "lua_ls: Diagnosing") end
-        notif_arr = vim.tbl_filter(not_diagnosing, notif_arr)
-        return MiniNotify.default_sort(notif_arr)
+        return MiniNotify.default_sort(vim.tbl_filter(not_lua_diagnosing, notif_arr))
     end
     require("mini.notify").setup({
         content = { sort = filterout_lua_diagnosing },
-        window = { config = { border = "single" } },
+        window = { config = { border = "none" } },
     })
     vim.notify = MiniNotify.make_notify()
 end)
 
--- now(function() require("mini.sessions").setup() end)
-
-now(function() require("mini.starter").setup() end)
+now(function()
+    require("mini.starter").setup({
+        evaluate_single = true,
+        footer = "",
+    })
+end)
 
 now(function() require("mini.statusline").setup() end)
 
@@ -35,32 +49,43 @@ later(function() require("mini.extra").setup() end)
 later(function()
     local ai = require("mini.ai")
     ai.setup({
+        n_lines = 500,
         custom_textobjects = {
             B = MiniExtra.gen_ai_spec.buffer(),
-            F = ai.gen_spec.treesitter({ a = "@function.outer", i = "@function.inner" }),
+            o = ai.gen_spec.treesitter({ -- code block
+                a = { "@block.outer", "@conditional.outer", "@loop.outer" },
+                i = { "@block.inner", "@conditional.inner", "@loop.inner" },
+            }),
+            f = ai.gen_spec.treesitter({ a = "@function.outer", i = "@function.inner" }), -- function
+            c = ai.gen_spec.treesitter({ a = "@class.outer", i = "@class.inner" }), -- class
+            t = { "<([%p%w]-)%f[^<%w][^<>]->.-</%1>", "^<.->().*()</[^/]->$" }, -- tags
+            d = { "%f[%d]%d+" }, -- digits
+            e = { -- Word with case
+                { "%u[%l%d]+%f[^%l%d]", "%f[%S][%l%d]+%f[^%l%d]", "%f[%P][%l%d]+%f[^%l%d]", "^[%l%d]+%f[^%l%d]" },
+                "^().*()$",
+            },
+            u = ai.gen_spec.function_call(), -- u for "Usage"
+            U = ai.gen_spec.function_call({ name_pattern = "[%w_]" }), -- without dot in function name
         },
     })
 end)
 
 later(function()
-    require("mini.basics").setup({
-        options = {
-            -- Manage options manually
-            basic = false,
-        },
-        mappings = {
-            windows = true,
-            move_with_alt = true,
-        },
-        autocommands = {
-            relnum_in_visual_mode = true,
-        },
-    })
-    vim.o.pumblend = 0
-    vim.o.winblend = 0
-end)
+    require("mini.bufremove").setup()
 
-later(function() require("mini.bufremove").setup() end)
+    keymap("n", "<leader>bd", "<Cmd>lua MiniBufremove.delete()<CR>", { desc = "Delete current" })
+    keymap("n", "<leader>bo", function()
+        local current_buf = vim.api.nvim_get_current_buf()
+        local all_bufs = vim.api.nvim_list_bufs()
+
+        for _, buf in ipairs(all_bufs) do
+            -- Skip the current buffer and non-listed/invalid buffers
+            if buf ~= current_buf and vim.fn.buflisted(buf) == 1 and vim.api.nvim_buf_is_valid(buf) then
+                MiniBufremove.delete(buf, true) -- Using force=true to skip confirmation
+            end
+        end
+    end, { desc = "Delete others" })
+end)
 
 later(function()
     local miniclue = require("mini.clue")
@@ -96,11 +121,9 @@ later(function()
       { mode = 'n', keys = 'z' },        -- `z` key
       { mode = 'x', keys = 'z' },
     },
-    window = { config = { border = 'single' } },
+    window = { config = { border = 'none' } },
   })
 end)
-
-later(function() require("mini.comment").setup() end)
 
 later(function()
     require("mini.cursorword").setup()
@@ -114,13 +137,18 @@ later(function()
         return function() return MiniDiff.operator(operation) .. (operation == "yank" and "gh" or "") end
     end
 
-    keymap("n", "ghy", make_operator_rhs("yank"), { expr = true, remap = true, desc = "Copy hunk's reference lines" })
-    keymap("n", "ghr", make_operator_rhs("reset"), { expr = true, remap = true, desc = "Reset hunk" })
-    keymap("n", "ghs", make_operator_rhs("apply"), { expr = true, remap = true, desc = "Apply hunk" })
     keymap(
         "n",
-        "ghp",
-        function() return MiniDiff.toggle_overlay() end,
+        "<leader>ghy",
+        make_operator_rhs("yank"),
+        { expr = true, remap = true, desc = "Copy hunk's reference lines" }
+    )
+    keymap("n", "<leader>ghr", make_operator_rhs("reset"), { expr = true, remap = true, desc = "Reset hunk" })
+    keymap("n", "<leader>ghs", make_operator_rhs("apply"), { expr = true, remap = true, desc = "Apply hunk" })
+    keymap(
+        "n",
+        "<leader>go",
+        function() return MiniDiff.toggle_overlay(0) end,
         { expr = true, remap = true, desc = "Toggle diff overlay" }
     )
 end)
@@ -142,55 +170,51 @@ later(function()
     })
 end)
 
-later(function() require("mini.indentscope").setup() end)
+later(function()
+    require("mini.indentscope").setup({ symbol = "│", options = { try_as_border = true } })
+
+    vim.api.nvim_create_autocmd("FileType", {
+        pattern = {
+            "Trouble",
+            "alpha",
+            "dashboard",
+            "fzf",
+            "help",
+            "notify",
+            "trouble",
+        },
+        callback = function() vim.b.miniindentscope_disable = true end,
+    })
+end)
 
 later(function() require("mini.jump").setup() end)
 
 later(function()
     local jump2d = require("mini.jump2d")
     jump2d.setup({
-        spotter = jump2d.gen_pattern_spotter("[^%s%p]+"),
+        labels = "abcdefhijklmnopqrstuvwxyz",
+        allowed_lines = { blank = false },
         view = { dim = true, n_steps_ahead = 2 },
     })
-end)
-
-later(function()
-    local map = require("mini.map")
-    local gen_integr = map.gen_integration
-    local encode_symbols = map.gen_encode_symbols.dot("3x2")
-    map.setup({
-        symbols = { encode = encode_symbols },
-        integrations = { gen_integr.builtin_search(), gen_integr.diff(), gen_integr.diagnostic() },
-    })
-    vim.keymap.set("n", [[\h]], ":let v:hlsearch = 1 - v:hlsearch<CR>", { desc = "Toggle hlsearch" })
-    for _, key in ipairs({ "n", "N", "*" }) do
-        vim.keymap.set("n", key, key .. "zv<Cmd>lua MiniMap.refresh({}, { lines = false, scrollbar = false })<CR>")
-    end
 end)
 
 later(function()
     require("mini.misc").setup({ make_global = { "put", "put_text", "stat_summary", "bench_time" } })
     MiniMisc.setup_auto_root()
     MiniMisc.setup_termbg_sync()
+    MiniMisc.setup_restore_cursor()
 end)
 
--- later(function()
---     local remap = function(mode, lhs_from, lhs_to)
---         local keymap = vim.fn.maparg(lhs_from, mode, false, true)
---         local rhs = keymap.callback or keymap.rhs
---         if rhs == nil then error("Could not remap from " .. lhs_from .. " to " .. lhs_to) end
---         vim.keymap.set(mode, lhs_to, rhs, { desc = keymap.desc })
---     end
---     remap("n", "gx", "<Leader>ox")
---     remap("x", "gx", "<Leader>ox")
---
---     require("mini.operators").setup()
--- end)
-
-later(function() require("mini.pairs").setup({ modes = { insert = true, command = true } }) end)
-
-later(function() require("mini.splitjoin").setup() end)
+later(
+    function()
+        require("mini.pairs").setup({
+            modes = { insert = true, command = true, terminal = false },
+            skip_next = [=[[%w%%%'%[%"%.%`%$]]=],
+            skip_ts = { "string" },
+            skip_unbalanced = true,
+            markdown = true,
+        })
+    end
+)
 
 later(function() require("mini.surround").setup({ search_method = "cover_or_next" }) end)
-
-later(function() require("mini.visits").setup() end)

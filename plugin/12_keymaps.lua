@@ -1,17 +1,11 @@
 _G.Config.leader_group_clues = {
     { mode = "n", keys = "<Leader>b", desc = "+Buffer" },
     { mode = "n", keys = "<Leader>c", desc = "+Code" },
-    { mode = "n", keys = "<Leader>d", desc = "+Database" },
     { mode = "n", keys = "<Leader>f", desc = "+File" },
     { mode = "n", keys = "<Leader>g", desc = "+Git" },
-    { mode = "n", keys = "<Leader>l", desc = "+Laravel" },
-    { mode = "n", keys = "<Leader>L", desc = "+LSP" },
     { mode = "n", keys = "<Leader>m", desc = "+Marks" },
-    { mode = "n", keys = "<Leader>o", desc = "+Other" },
     { mode = "n", keys = "<Leader>r", desc = "+Rename" },
     { mode = "n", keys = "<Leader>s", desc = "+Search" },
-    { mode = "n", keys = "<Leader>t", desc = "+Tes" },
-    { mode = "n", keys = "<Leader>v", desc = "+Visits" },
     { mode = "n", keys = "<Leader>w", desc = "+Window" },
     { mode = "n", keys = "<Leader><tab>", desc = "+Tabs" },
 }
@@ -35,18 +29,11 @@ keymap("v", "<A-k>", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<cr>gv=gv"
 
 keymap("n", "<C-d>", "<C-d>zz", { desc = "move [d]own half-page and center" })
 keymap("n", "<C-u>", "<C-u>zz", { desc = "move [u]p half-page and center" })
--- keymap("n", "<leader>e", function() vim.diagnostic.open_float() end, { noremap = true, silent = true })
 
 keymap({ "i", "n" }, "<esc>", "<cmd>noh<cr><esc>", { desc = "Escape and Clear hlsearch" })
 
 -- Buffers
-keymap("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "Prev Buffer" })
-keymap("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next Buffer" })
-keymap("n", "[b", "<cmd>bprevious<cr>", { desc = "Prev Buffer" })
-keymap("n", "]b", "<cmd>bnext<cr>", { desc = "Next Buffer" })
-keymap("n", "<leader>bb", "<cmd>e #<cr>", { desc = "Switch to Other Buffer" })
--- keymap("n", "<leader>bd", function() Snacks.bufdelete() end, { desc = "Delete Buffer" })
--- keymap("n", "<leader>bo", function() Snacks.bufdelete.other() end, { desc = "Delete Other Buffers" })
+keymap("n", "<leader>ba", "<Cmd>b#<CR>", { desc = "Alternate" })
 
 -- Search
 keymap("n", "n", "'Nn'[v:searchforward].'zv'", { expr = true, desc = "Next Search Result" })
@@ -72,3 +59,20 @@ keymap("n", "<leader>fn", "<cmd>enew<cr>", { desc = "New File" })
 keymap("n", "<leader>wd", "<C-W>c", { desc = "Delete Window", remap = true })
 keymap("n", "<leader>w", "<c-w>", { desc = "Windows", remap = true })
 keymap("n", "<leader><tab>d", "<cmd>tabclose<cr>", { desc = "Close Tab" })
+
+-- better up/down
+keymap({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true })
+keymap({ "n", "x" }, "<Down>", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true })
+keymap({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
+keymap({ "n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
+
+-- Quickfix list
+keymap("n", "<leader>xq", "<cmd>copen<cr>", { desc = "Quickfix List" })
+keymap("n", "[q", vim.cmd.cprev, { desc = "Previous Quickfix" })
+keymap("n", "]q", vim.cmd.cnext, { desc = "Next Quickfix" })
+
+-- tabs
+keymap("n", "<leader><tab>]", "<cmd>tabnext<cr>", { desc = "Next" })
+keymap("n", "<leader><tab>[", "<cmd>tabprevious<cr>", { desc = "Previous" })
+keymap("n", "<leader><tab>d", "<cmd>tabclose<cr>", { desc = "Close current" })
+keymap("n", "<leader><tab>o", "<cmd>tabonly<cr>", { desc = "Close other" })

@@ -1,3 +1,5 @@
+local add, later = MiniDeps.add, MiniDeps.later
+
 later(function()
     add("stevearc/conform.nvim")
 
@@ -10,7 +12,7 @@ later(function()
             timeout_ms = 3000,
             async = false,
             quiet = false,
-            lsp_format = "fallback",
+            -- lsp_format = "fallback",
         },
         formatters_by_ft = {
             lua = { "stylua" },
