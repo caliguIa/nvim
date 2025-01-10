@@ -125,11 +125,7 @@ later(function()
   })
 end)
 
-later(function()
-    require("mini.cursorword").setup()
-    vim.api.nvim_set_hl(0, "MiniCursorwordCurrent", { bg = "#45475a" })
-    vim.api.nvim_set_hl(0, "MiniCursorword", { bg = "#45475a" })
-end)
+later(function() require("mini.cursorword").setup() end)
 
 later(function()
     require("mini.diff").setup()

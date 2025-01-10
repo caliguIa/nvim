@@ -179,7 +179,85 @@ later(function()
     vim.api.nvim_create_autocmd("LspAttach", {
         group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
         callback = function(event)
+            local bufnr = event.buf
             local client = vim.lsp.get_client_by_id(event.data.client_id)
+
+            vim.api.nvim_create_autocmd("WinEnter", {
+                callback = function()
+                    local win = vim.api.nvim_get_current_win()
+                    local win_config = vim.api.nvim_win_get_config(win)
+
+                    if win_config.relative ~= "" then
+                        local float_bufnr = vim.api.nvim_win_get_buf(win)
+
+                        vim.keymap.set("n", "K", function()
+                            local type_name = vim.fn.expand("<cword>")
+                            print("Looking up type: " .. type_name)
+
+                            -- Get the vtsls client
+                            local ts_client
+                            for _, c in ipairs(vim.lsp.get_active_clients({ bufnr = bufnr })) do
+                                if c.name == "vtsls" then
+                                    ts_client = c
+                                    break
+                                end
+                            end
+
+                            if not ts_client then
+                                print("No TypeScript LSP client found")
+                                return
+                            end
+
+                            ts_client.request("workspace/symbol", {
+                                query = type_name,
+                            }, function(err, symbols, ctx)
+                                if symbols and #symbols > 0 then
+                                    for _, symbol in ipairs(symbols) do
+                                        if symbol.name == type_name then
+                                            local loc = symbol.location
+                                            local types_uri = loc.uri
+                                            local types_bufnr = vim.uri_to_bufnr(types_uri)
+
+                                            if not vim.api.nvim_buf_is_loaded(types_bufnr) then
+                                                vim.fn.bufload(types_bufnr)
+                                            end
+
+                                            -- Get the lines from the buffer
+                                            local lines = vim.api.nvim_buf_get_lines(types_bufnr, 0, -1, false)
+                                            for i, line in ipairs(lines) do
+                                                if line:match("type%s+" .. type_name) then
+                                                    -- Extract the type definition
+                                                    local type_def = line:match("=%s*(.+);")
+                                                    if type_def then
+                                                        -- Close the original hover window
+                                                        pcall(vim.api.nvim_win_close, win, false)
+
+                                                        -- Create our own hover window with the type information
+                                                        local markdown_lines = {
+                                                            "```typescript",
+                                                            "type " .. type_name .. " = " .. type_def,
+                                                            "```",
+                                                        }
+
+                                                        vim.lsp.util.open_floating_preview(markdown_lines, "markdown", {
+                                                            border = "single",
+                                                            focus = false,
+                                                        })
+                                                    end
+                                                    break
+                                                end
+                                            end
+                                            return
+                                        end
+                                    end
+                                end
+                            end)
+                        end, { buffer = float_bufnr, silent = true })
+                    end
+                end,
+            })
+            -- Normal hover keymap for regular buffers
+            vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = bufnr })
 
             keymap(
                 "n",

@@ -28,7 +28,6 @@ vim.o.laststatus = 2 -- Always show statusline
 vim.o.linebreak = true -- Wrap long lines at 'breakat' (if 'wrap' is set)
 vim.o.list = true -- Show helpful character indicators
 vim.o.number = true -- Show line numbers
-vim.o.pumblend = 10 -- Make builtin completion menus slightly transparent
 vim.o.pumheight = 10 -- Make popup menu smaller
 vim.o.ruler = false -- Don't show cursor position
 vim.o.scrolloff = 4 -- Lines of visible context

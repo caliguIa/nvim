@@ -39,8 +39,8 @@ later(function()
 
     later(function() add({ source = "nvim-treesitter/nvim-treesitter-textobjects" }) end)
 
-    require("nvim-ts-autotag").setup()
-
     add("folke/ts-comments.nvim")
     require("ts-comments").setup()
+    require("treesitter-context").setup({ mode = "cursor", max_lines = 3 })
+    require("nvim-ts-autotag").setup()
 end)
