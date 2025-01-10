@@ -1,33 +1,14 @@
 local add, later = MiniDeps.add, MiniDeps.later
-local x = function(style) return { style } end
 
----@param hex_str string hexadecimal value of a color
-local hex_to_rgb = function(hex_str)
-    local hex = "[abcdef0-9][abcdef0-9]"
-    local pat = "^#(" .. hex .. ")(" .. hex .. ")(" .. hex .. ")$"
-    hex_str = string.lower(hex_str)
+local function darken(hex, amount, bg)
+    local function h2d(h) return tonumber(h, 16) end
+    local r1, g1, b1 = hex:lower():match("#(%x%x)(%x%x)(%x%x)")
+    local r2, g2, b2 = bg:lower():match("#(%x%x)(%x%x)(%x%x)")
 
-    assert(string.find(hex_str, pat) ~= nil, "hex_to_rgb: invalid hex_str: " .. tostring(hex_str))
+    local blend = function(a, b) return math.floor(math.min(255, math.max(0, amount * h2d(a) + (1 - amount) * h2d(b)))) end
 
-    local red, green, blue = string.match(hex_str, pat)
-    return { tonumber(red, 16), tonumber(green, 16), tonumber(blue, 16) }
+    return string.format("#%02X%02X%02X", blend(r1, r2), blend(g1, g2), blend(b1, b2))
 end
----@param fg string forecrust color
----@param bg string background color
----@param alpha number number between 0 and 1. 0 results in bg, 1 results in fg
-local function blend(fg, bg, alpha)
-    bg = hex_to_rgb(bg)
-    fg = hex_to_rgb(fg)
-
-    local blendChannel = function(i)
-        local ret = (alpha * fg[i] + ((1 - alpha) * bg[i]))
-        return math.floor(math.min(math.max(0, ret), 255) + 0.5)
-    end
-
-    return string.format("#%02X%02X%02X", blendChannel(1), blendChannel(2), blendChannel(3))
-end
-
-local function darken(hex, amount, bg) return blend(hex, bg or bg, math.abs(amount)) end
 
 later(function()
     add({ source = "catppuccin/nvim", name = "catppuccin" })
@@ -39,6 +20,7 @@ later(function()
             illuminate = true,
             indent_blankline = { enabled = true },
             markdown = true,
+            dropbar = true,
             mini = true,
             native_lsp = {
                 enabled = true,
@@ -55,12 +37,11 @@ later(function()
         },
         custom_highlights = function(colors)
             return {
-                MiniCursorwordCurrent = { bg = darken(colors.surface1, 0.7, colors.base), style = x("standout") },
-                MiniCursorword = { bg = darken(colors.surface1, 0.7, colors.base), style = x() },
-                -- bg = U.darken(C.surface1, 0.7, C.base)
+                MiniCursorwordCurrent = { bg = darken(colors.surface1, 0.7, colors.base), style = {} },
+                MiniCursorword = { bg = darken(colors.surface1, 0.7, colors.base), style = {} },
             }
         end,
     })
 
-    vim.cmd.colorscheme("catppuccin-latte")
+    vim.cmd.colorscheme("catppuccin-mocha")
 end)

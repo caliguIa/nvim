@@ -303,8 +303,6 @@ later(function()
                 },
             })
 
-            require("zendiagram").setup()
-
             if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
                 keymap(
                     "n",
