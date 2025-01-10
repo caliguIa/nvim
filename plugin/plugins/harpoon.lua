@@ -1,4 +1,4 @@
-local add, later = MiniDeps.add, MiniDeps.now
+local add, later = MiniDeps.add, MiniDeps.later
 
 later(function()
     add({ source = "ThePrimeagen/harpoon", checkout = "harpoon2", depends = { "nvim-lua/plenary.nvim" } })

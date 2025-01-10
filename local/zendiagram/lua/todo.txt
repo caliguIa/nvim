@@ -1,4 +1,0 @@
-- if at end of line just show current lines error
-- what to do if line is very long?
-- if line has extmark on it already (lua 2 references eg) need to shift to start after that extmark
-- deduplication seems to have stopped working

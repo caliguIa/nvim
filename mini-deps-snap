@@ -1,6 +1,6 @@
 return {
   ["blink-cmp-copilot"] = "c5c5cbce5748d21073f1d5348a92ebe6ce63f387",
-  ["blink.cmp"] = "4a380c180e00482b52f8e2fb6870197fa03e7091",
+  ["blink.cmp"] = "4ba1fa1434049c56835a3f3adabab74209c63a6f",
   ["blink.compat"] = "5ca8848c8cc32abdc980e5db4f0eb7bb8fbf84dc",
   catppuccin = "f67b886d65a029f12ffa298701fb8f1efd89295d",
   ["conform.nvim"] = "70019124aa4f2e6838be9fbd2007f6d13b27a96d",
@@ -9,7 +9,7 @@ return {
   ["friendly-snippets"] = "efff286dd74c22f731cdec26a70b46e5b203c619",
   ["fzf-lua"] = "54d505c17576f10d4c74c8e110b445369bd71548",
   ["git-conflict.nvim"] = "4bbfdd92d547d2862a75b4e80afaf30e73f7bbb4",
-  ["grug-far.nvim"] = "08f32182335754abf461dfb77b2c4e24bfe4d614",
+  hanzel = "5d484fb23a98d95446ebce417d44096d1fcd1c65",
   ["hardtime.nvim"] = "5d9adcbe2f12741de79e435c8b85dca69a3b22e4",
   harpoon = "a84ab829eaf3678b586609888ef52f7779102263",
   ["indent-blankline.nvim"] = "259357fa4097e232730341fa60988087d189193a",
@@ -25,9 +25,8 @@ return {
   ["nvim-ts-autotag"] = "1cca23c9da708047922d3895a71032bc0449c52d",
   ["oil.nvim"] = "7041528bdedb350ad66e650684deec8456e053cc",
   ["plenary.nvim"] = "2d9b06177a975543726ce5c73fca176cedbffe9d",
-  ["smart-splits.nvim"] = "4b16e5d303c80e5628b04066032ee1b090af5940",
-  ["smear-cursor.nvim"] = "005b50b891d662bdd3160dc2a143939066b5cc17",
+  ["smart-splits.nvim"] = "7266722346df921535ca3f317164a62069436b7c",
   ["ts-comments.nvim"] = "872dcfa0418f4a33b7437fb4d9f4e89f2f000d74",
   undotree = "2556c6800b210b2096b55b66e74b4cc1d9ebbe4f",
-  ["winbar.nvim"] = "e36a308e808e73c373d756f0a3e526aadf7530df"
+  zendiagram = "1f388071f721dfda206698431b98c43745934775"
 }

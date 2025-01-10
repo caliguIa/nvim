@@ -1,4 +1,4 @@
-local add, later = MiniDeps.add, MiniDeps.now
+local add, later = MiniDeps.add, MiniDeps.later
 
 later(function()
     add("folke/lazydev.nvim")

@@ -22,6 +22,7 @@ now(function()
         window = { config = { border = "none" } },
     })
     vim.notify = MiniNotify.make_notify()
+    keymap("n", "<leader>nh", MiniNotify.show_history, { desc = "Show notification history" })
 end)
 
 now(function()
