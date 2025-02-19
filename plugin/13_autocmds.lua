@@ -83,7 +83,6 @@ vim.api.nvim_create_autocmd({ "BufWritePost" }, {
     pattern = "*.{js,ts,jsx,tsx}",
     callback = function()
         if vim.fn.exists(":EslintFixAll") > 0 then
-            -- @TODO we need to wait for eslint to finish and save the file
             vim.cmd("silent! EslintFixAll")
             return
         end
@@ -95,4 +94,125 @@ vim.api.nvim_create_autocmd("BufWritePost", {
     group = augroup("lsprestart_eslint"),
     pattern = { "package.json" },
     command = "LspRestart eslint",
+})
+
+-- Don't auto-wrap comments and don't insert comment leader after hitting 'o'
+vim.api.nvim_create_autocmd("FileType", {
+    group = augroup("comment_format"),
+    callback = function() vim.cmd("setlocal formatoptions-=c formatoptions-=o") end,
+    desc = [[Ensure proper 'formatoptions']],
+})
+
+vim.api.nvim_create_autocmd("LspAttach", {
+    group = augroup("lsp-attach"),
+    callback = function(event)
+        --stylua: ignore start
+        keymap("n", "<Leader>e", require('zendiagram').open, { desc = "Show diagnostics" })
+        keymap("n", "K", vim.lsp.buf.hover, { buffer = event.buf })
+        keymap("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename" })
+        keymap("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code Action" })
+        --stylua: ignore end
+
+        local client = vim.lsp.get_client_by_id(event.data.client_id)
+        if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
+            keymap(
+                "n",
+                "<leader>\\i",
+                function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf })) end,
+                { desc = "[T]oggle inlay hints" }
+            )
+        end
+
+        if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_codeLens) then
+            vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
+                buffer = event.buf,
+                callback = vim.lsp.codelens.refresh,
+            })
+            keymap(
+                "n",
+                "<leader>\\l",
+                function() vim.lsp.codelens.refresh() end,
+                { desc = "[T]oggle code lens refresh" }
+            )
+        end
+    end,
+})
+vim.api.nvim_create_autocmd("LspAttach", {
+    group = augroup("inlay_hints"),
+    callback = function(args)
+        local client = vim.lsp.get_client_by_id(args.data.client_id)
+        if client and client:supports_method("textDocument/inlayHint") then
+            vim.lsp.inlay_hint.enable(true, { bufnr = args.buf })
+            --stylua: ignore start
+            keymap("n", "<leader>\\i", function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = args.buf })) end, { desc = "[T]oggle inlay hints" })
+        end
+    end,
+})
+
+vim.api.nvim_create_autocmd("LspAttach", {
+    group = augroup("codelens"),
+    callback = function(args)
+        local client = vim.lsp.get_client_by_id(args.data.client_id)
+        if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_codeLens, args.buf) then
+            vim.lsp.codelens.refresh({ bufnr = args.buf })
+            --stylua: ignore start
+            keymap("n", "<leader>\\l", function() vim.lsp.codelens.refresh() end, { desc = "[T]oggle code lens refresh" })
+        end
+    end,
+})
+
+vim.api.nvim_create_autocmd("LspAttach", {
+    callback = function(args)
+        local client = vim.lsp.get_client_by_id(args.data.client_id)
+
+        if client and client:supports_method("textDocument/documentHighlight") then
+            local group = vim.api.nvim_create_augroup("lsp_highlight", { clear = false })
+            vim.api.nvim_clear_autocmds({ buffer = args.buf, group = group })
+
+            local timer = vim.loop.new_timer()
+            local HOVER_DELAY = 100 -- 100ms delay
+
+            -- Track last position to prevent unnecessary updates
+            local last_line = 0
+            local last_col = 0
+
+            vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+                group = group,
+                buffer = args.buf,
+                callback = function()
+                    -- Get current position
+                    local pos = vim.api.nvim_win_get_cursor(0)
+                    local curr_line, curr_col = pos[1], pos[2]
+
+                    -- Only proceed if position actually changed
+                    if curr_line ~= last_line or curr_col ~= last_col then
+                        last_line, last_col = curr_line, curr_col
+
+                        vim.lsp.buf.clear_references()
+                        timer:stop()
+                        timer:start(
+                            HOVER_DELAY,
+                            0,
+                            vim.schedule_wrap(function()
+                                -- Check if cursor position is still the same
+                                local new_pos = vim.api.nvim_win_get_cursor(0)
+                                if new_pos[1] == curr_line and new_pos[2] == curr_col then
+                                    vim.lsp.buf.document_highlight()
+                                end
+                            end)
+                        )
+                    end
+                end,
+            })
+
+            vim.api.nvim_create_autocmd("BufUnload", {
+                group = group,
+                buffer = args.buf,
+                callback = function()
+                    timer:stop()
+                    timer:close()
+                end,
+            })
+        end
+    end,
 })

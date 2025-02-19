@@ -1,5 +1,8 @@
 {
-    "diagnostics.globals": [
-        "MiniDeps"
-    ]
+  "runtime.version": "LuaJIT",
+  "runtime.path": ["lua/?.lua", "lua/?/init.lua"],
+  "diagnostics.globals": ["vim", "MiniDeps"],
+  "workspace.checkThirdParty": false,
+  "workspace.library": ["$VIMRUNTIME"]
 }
+

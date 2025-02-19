@@ -126,7 +126,7 @@ later(function()
   })
 end)
 
-later(function() require("mini.cursorword").setup() end)
+-- later(function() require("mini.cursorword").setup() end)
 
 later(function()
     require("mini.diff").setup()
@@ -150,49 +150,18 @@ later(function()
     )
 end)
 
-later(function() require("mini.git").setup() end)
-
 later(function()
-    local hipatterns = require("mini.hipatterns")
-    local hi_words = MiniExtra.gen_highlighter.words
-    hipatterns.setup({
-        highlighters = {
-            fixme = hi_words({ "FIXME", "Fixme", "fixme" }, "MiniHipatternsFixme"),
-            hack = hi_words({ "HACK", "Hack", "hack" }, "MiniHipatternsHack"),
-            todo = hi_words({ "TODO", "Todo", "todo" }, "MiniHipatternsTodo"),
-            note = hi_words({ "NOTE", "Note", "note" }, "MiniHipatternsNote"),
-
-            hex_color = hipatterns.gen_highlighter.hex_color(),
-        },
-    })
-end)
-
-later(function()
-    require("mini.indentscope").setup({ symbol = "│", options = { try_as_border = true } })
-
-    vim.api.nvim_create_autocmd("FileType", {
-        pattern = {
-            "Trouble",
-            "alpha",
-            "dashboard",
-            "fzf",
-            "help",
-            "notify",
-            "trouble",
-        },
-        callback = function() vim.b.miniindentscope_disable = true end,
-    })
-end)
-
-later(function() require("mini.jump").setup() end)
-
-later(function()
-    local jump2d = require("mini.jump2d")
-    jump2d.setup({
-        labels = "abcdefhijklmnopqrstuvwxyz",
-        allowed_lines = { blank = false },
-        view = { dim = true, n_steps_ahead = 2 },
-    })
+    require("mini.git").setup()
+    local git_log_cmd = [[Git log --pretty=format:\%h\ \%as\ │\ \%s --topo-order]]
+    keymap("n", "<leader>ga", "<Cmd>Git diff --cached<CR>", { desc = "Added diff" })
+    keymap("n", "<leader>gA", "<Cmd>Git diff --cached -- %<CR>", { desc = "Added diff buffer" })
+    keymap("n", "<leader>gc", "<Cmd>Git commit<CR>", { desc = "Commit" })
+    keymap("n", "<leader>gC", "<Cmd>Git commit --amend<CR>", { desc = "Commit amend" })
+    keymap("n", "<leader>gd", "<Cmd>Git diff<CR>", { desc = "Diff" })
+    keymap("n", "<leader>gD", "<Cmd>Git diff -- %<CR>", { desc = "Diff buffer" })
+    keymap("n", "<leader>gl", "<Cmd>" .. git_log_cmd .. "<CR>", { desc = "Log" })
+    keymap("n", "<leader>gL", "<Cmd>" .. git_log_cmd .. " --follow -- %<CR>", { desc = "Log buffer" })
+    keymap("n", "<leader>gs", "<Cmd>lua MiniGit.show_at_cursor()<CR>", { desc = "Show at cursor" })
 end)
 
 later(function()

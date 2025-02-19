@@ -5,17 +5,14 @@ later(function()
         source = "NeogitOrg/neogit",
         depends = {
             "nvim-lua/plenary.nvim",
-            "sindrets/diffview.nvim",
-            "ibhagwan/fzf-lua",
         },
     })
 
     require("neogit").setup({
-        -- disable_builtin_notifications = true,
         disable_insert_on_commit = "auto",
         integrations = {
-            diffview = true,
-            fzf_lua = true,
+            diffview = false,
+            fzf_lua = false,
         },
         initial_branch_name = "DREAD-",
     })

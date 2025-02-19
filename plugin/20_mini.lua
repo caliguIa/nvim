@@ -31,7 +31,57 @@ now(function()
     })
 end)
 
-now(function() require("mini.statusline").setup() end)
+now(function()
+    local statusline = require("mini.statusline")
+
+    statusline.setup({
+        content = {
+            active = function()
+                local mode, mode_hl = MiniStatusline.section_mode({ trunc_width = 120 })
+                local git = MiniStatusline.section_git({ trunc_width = 40 })
+                local diff = MiniStatusline.section_diff({ trunc_width = 75 })
+                local diagnostics = MiniStatusline.section_diagnostics({ trunc_width = 75 })
+                local lsp = MiniStatusline.section_lsp({ trunc_width = 75 })
+                local filename = MiniStatusline.section_filename({ trunc_width = 140 })
+                local fileinfo = MiniStatusline.section_fileinfo({ trunc_width = 120 })
+                local location = MiniStatusline.section_location({ trunc_width = 75 })
+                local search = MiniStatusline.section_searchcount({ trunc_width = 75 })
+
+                return MiniStatusline.combine_groups({
+                    { hl = mode_hl, strings = { mode } },
+                    { hl = "MiniStatuslineDevinfo", strings = { git, diff } },
+                    "%<", -- Mark general truncate point
+                    { hl = "MiniStatuslineFilename", strings = { diagnostics, filename } },
+                    "%=", -- End left alignment
+                    { hl = "MiniStatuslineFileinfo", strings = { fileinfo, lsp } },
+                    { hl = mode_hl, strings = { search, location } },
+                })
+            end,
+        },
+    })
+    statusline.section_filename = function() return "%f %m" end
+
+    statusline.section_lsp = function()
+        local attached_clients = vim.lsp.get_clients()
+        local client_names = {}
+
+        for _, client in pairs(attached_clients) do
+            table.insert(client_names, client.name)
+        end
+
+        if vim.tbl_count(client_names) == 0 then return "" end
+
+        return string.format("[ %s ]", table.concat(client_names, " | "))
+    end
+
+    statusline.section_fileinfo = function()
+        local filetype = vim.bo.filetype
+        if (filetype == "") or vim.bo.buftype ~= "" then return "" end
+        return string.format("%s%%r", filetype)
+    end
+
+    statusline.section_location = function() return "[%p%% %L]" end
+end)
 
 now(function()
     require("mini.icons").setup({
@@ -126,12 +176,6 @@ later(function()
 end)
 
 later(function()
-    require("mini.cursorword").setup()
-    vim.api.nvim_set_hl(0, "MiniCursorwordCurrent", { bg = "#45475a" })
-    vim.api.nvim_set_hl(0, "MiniCursorword", { bg = "#45475a" })
-end)
-
-later(function()
     require("mini.diff").setup()
     local function make_operator_rhs(operation)
         return function() return MiniDiff.operator(operation) .. (operation == "yank" and "gh" or "") end
@@ -167,34 +211,6 @@ later(function()
 
             hex_color = hipatterns.gen_highlighter.hex_color(),
         },
-    })
-end)
-
-later(function()
-    require("mini.indentscope").setup({ symbol = "│", options = { try_as_border = true } })
-
-    vim.api.nvim_create_autocmd("FileType", {
-        pattern = {
-            "Trouble",
-            "alpha",
-            "dashboard",
-            "fzf",
-            "help",
-            "notify",
-            "trouble",
-        },
-        callback = function() vim.b.miniindentscope_disable = true end,
-    })
-end)
-
-later(function() require("mini.jump").setup() end)
-
-later(function()
-    local jump2d = require("mini.jump2d")
-    jump2d.setup({
-        labels = "abcdefhijklmnopqrstuvwxyz",
-        allowed_lines = { blank = false },
-        view = { dim = true, n_steps_ahead = 2 },
     })
 end)
 

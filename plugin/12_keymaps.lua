@@ -6,6 +6,7 @@ _G.Config.leader_group_clues = {
     { mode = "n", keys = "<Leader>m", desc = "+Marks" },
     { mode = "n", keys = "<Leader>r", desc = "+Rename" },
     { mode = "n", keys = "<Leader>s", desc = "+Search" },
+    { mode = "n", keys = "<Leader>t", desc = "+Test" },
     { mode = "n", keys = "<Leader>w", desc = "+Window" },
     { mode = "n", keys = "<Leader><tab>", desc = "+Tabs" },
 }

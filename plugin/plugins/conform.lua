@@ -26,6 +26,7 @@ later(function()
             json = { "prettier" },
             jsonc = { "prettier" },
             markdown = { "prettier" },
+            nix = { "nixfmt" },
             scss = { "prettier" },
             vue = { "prettier" },
             yaml = { "prettier" },

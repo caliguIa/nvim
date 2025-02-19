@@ -62,16 +62,13 @@ later(function()
                 enabled = false,
             },
         },
+        cmdline = {
+            enabled = true,
+        },
         sources = {
             compat = {},
-            default = { "lsp", "path", "snippets", "buffer", "lazydev", "copilot" },
-            cmdline = {},
+            default = { "lsp", "path", "snippets", "buffer", "copilot" },
             providers = {
-                lazydev = {
-                    name = "LazyDev",
-                    module = "lazydev.integrations.blink",
-                    score_offset = 100,
-                },
                 copilot = {
                     name = "copilot",
                     module = "blink-cmp-copilot",

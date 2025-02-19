@@ -7,7 +7,7 @@ local ensure_installed = {
     "json", "jsonc","json", "jq", "lua", "luadoc", "luap", "make", "markdown",
     "markdown_inline", "nix", "nu", "ocaml", "php", "printf", "python", "query",
     "regex", "rst", "rust", "sql", "ssh_config", "terraform", "toml", "tsx",
-    "typescript", "vim", "vimdoc", "yaml",
+    "typescript", "vim", "vimdoc", "yaml", "zig",
 }
 
 later(function()

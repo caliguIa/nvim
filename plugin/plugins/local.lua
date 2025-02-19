@@ -1,17 +1,17 @@
-local add, later = MiniDeps.add, MiniDeps.later
+local dev_path = vim.fn.expand("~/dev/nvim-plugins")
 
-local function plugin_dir(name) return vim.fn.expand("~/dev/nvim-plugins/" .. name) end
+local function use_local_plugin(name)
+    local plugin_path = dev_path .. "/" .. name
+    vim.opt.runtimepath:prepend(plugin_path)
 
-later(function()
-    add({
-        source = plugin_dir("hanzel.nvim"),
-        name = "hanzel",
-    })
-    add({
-        source = plugin_dir("zendiagram.nvim"),
-        name = "zendiagram",
-    })
+    local plugin_file = plugin_path .. "/plugin/" .. name:gsub("%.nvim$", "") .. ".lua"
+    if vim.fn.filereadable(plugin_file) == 1 then vim.cmd("source " .. plugin_file) end
+end
 
+use_local_plugin("hanzel.nvim")
+use_local_plugin("zendiagram.nvim")
+
+vim.defer_fn(function()
     require("hanzel").setup()
     require("zendiagram").setup()
-end)
+end, 0)
