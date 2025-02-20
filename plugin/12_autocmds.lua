@@ -18,6 +18,12 @@ vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
     end,
 })
 
+-- Highlight on yank
+vim.api.nvim_create_autocmd("TextYankPost", {
+    group = augroup("highlight_yank"),
+    callback = function() (vim.hl or vim.highlight).on_yank() end,
+})
+
 -- close some filetypes with <q>
 vim.api.nvim_create_autocmd("FileType", {
     group = augroup("close_with_q"),
@@ -114,60 +120,29 @@ vim.api.nvim_create_autocmd("LspAttach", {
         --stylua: ignore end
 
         local client = vim.lsp.get_client_by_id(event.data.client_id)
-        if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
-            keymap(
-                "n",
-                "<leader>\\i",
-                function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf })) end,
-                { desc = "[T]oggle inlay hints" }
-            )
+        if client and client.name == "vtsls" then
+            print("Setting ESLINT_D_ROOT to " .. client.root_dir)
+            vim.env.ESLINT_D_ROOT = client.root_dir
         end
 
-        if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_codeLens) then
+        if client and client:supports_method("textDocument/inlayHint") then
+            vim.lsp.inlay_hint.enable(true, { bufnr = event.buf })
+            --stylua: ignore start
+            keymap("n", "<leader>\\i", function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf })) end, { desc = "[T]oggle inlay hints" })
+        end
+
+        if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_codeLens, event.buf) then
             vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
                 buffer = event.buf,
                 callback = vim.lsp.codelens.refresh,
             })
-            keymap(
-                "n",
-                "<leader>\\l",
-                function() vim.lsp.codelens.refresh() end,
-                { desc = "[T]oggle code lens refresh" }
-            )
-        end
-    end,
-})
-vim.api.nvim_create_autocmd("LspAttach", {
-    group = augroup("inlay_hints"),
-    callback = function(args)
-        local client = vim.lsp.get_client_by_id(args.data.client_id)
-        if client and client:supports_method("textDocument/inlayHint") then
-            vim.lsp.inlay_hint.enable(true, { bufnr = args.buf })
-            --stylua: ignore start
-            keymap("n", "<leader>\\i", function() vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = args.buf })) end, { desc = "[T]oggle inlay hints" })
-        end
-    end,
-})
-
-vim.api.nvim_create_autocmd("LspAttach", {
-    group = augroup("codelens"),
-    callback = function(args)
-        local client = vim.lsp.get_client_by_id(args.data.client_id)
-        if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_codeLens, args.buf) then
-            vim.lsp.codelens.refresh({ bufnr = args.buf })
-            --stylua: ignore start
+            --stylua: ignore
             keymap("n", "<leader>\\l", function() vim.lsp.codelens.refresh() end, { desc = "[T]oggle code lens refresh" })
         end
-    end,
-})
-
-vim.api.nvim_create_autocmd("LspAttach", {
-    callback = function(args)
-        local client = vim.lsp.get_client_by_id(args.data.client_id)
 
         if client and client:supports_method("textDocument/documentHighlight") then
             local group = vim.api.nvim_create_augroup("lsp_highlight", { clear = false })
-            vim.api.nvim_clear_autocmds({ buffer = args.buf, group = group })
+            vim.api.nvim_clear_autocmds({ buffer = event.buf, group = group })
 
             local timer = vim.loop.new_timer()
             local HOVER_DELAY = 100 -- 100ms delay
@@ -178,7 +153,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
             vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
                 group = group,
-                buffer = args.buf,
+                buffer = event.buf,
                 callback = function()
                     -- Get current position
                     local pos = vim.api.nvim_win_get_cursor(0)
@@ -207,12 +182,35 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
             vim.api.nvim_create_autocmd("BufUnload", {
                 group = group,
-                buffer = args.buf,
+                buffer = event.buf,
                 callback = function()
                     timer:stop()
                     timer:close()
                 end,
             })
         end
+    end,
+})
+
+-- eslint_d linting
+vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave", "TextChanged", "LspAttach" }, {
+    group = augroup("lint-eslint"),
+    callback = function()
+        local client = vim.lsp.get_clients({ name = "vtsls" })[1]
+        if client then require("lint").try_lint("eslint_d", { cwd = client.root_dir }) end
+    end,
+})
+
+-- go to last loc when opening a buffer
+vim.api.nvim_create_autocmd("BufReadPost", {
+    group = augroup("last_loc"),
+    callback = function(event)
+        local exclude = { "gitcommit" }
+        local buf = event.buf
+        if vim.tbl_contains(exclude, vim.bo[buf].filetype) or vim.b[buf].last_loc then return end
+        vim.b[buf].last_loc = true
+        local mark = vim.api.nvim_buf_get_mark(buf, '"')
+        local lcount = vim.api.nvim_buf_line_count(buf)
+        if mark[1] > 0 and mark[1] <= lcount then pcall(vim.api.nvim_win_set_cursor, 0, mark) end
     end,
 })
