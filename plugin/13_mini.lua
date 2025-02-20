@@ -2,16 +2,6 @@ local add, now, later = MiniDeps.add, MiniDeps.now, MiniDeps.later
 
 add({ name = "mini.nvim", checkout = "HEAD" })
 
-now(
-    function()
-        require("mini.basics").setup({
-            options = { basic = false },
-            mappings = { windows = true, move_with_alt = true },
-            autocommands = { relnum_in_visual_mode = true },
-        })
-    end
-)
-
 now(function()
     local not_lua_diagnosing = function(notif) return not vim.startswith(notif.msg, "lua_ls: Diagnosing") end
     local filterout_lua_diagnosing = function(notif_arr)
@@ -22,13 +12,6 @@ now(function()
         window = { config = { border = "none" } },
     })
     vim.notify = MiniNotify.make_notify()
-end)
-
-now(function()
-    require("mini.starter").setup({
-        evaluate_single = true,
-        footer = "",
-    })
 end)
 
 now(function()
@@ -120,105 +103,43 @@ later(function()
     })
 end)
 
-later(function()
-    require("mini.bufremove").setup()
-
-    keymap("n", "<leader>bd", "<Cmd>lua MiniBufremove.delete()<CR>", { desc = "Delete current" })
-    keymap("n", "<leader>bo", function()
-        local current_buf = vim.api.nvim_get_current_buf()
-        local all_bufs = vim.api.nvim_list_bufs()
-
-        for _, buf in ipairs(all_bufs) do
-            -- Skip the current buffer and non-listed/invalid buffers
-            if buf ~= current_buf and vim.fn.buflisted(buf) == 1 and vim.api.nvim_buf_is_valid(buf) then
-                MiniBufremove.delete(buf, true) -- Using force=true to skip confirmation
-            end
-        end
-    end, { desc = "Delete others" })
-end)
+later(function() require("mini.bufremove").setup() end)
 
 later(function()
     local miniclue = require("mini.clue")
-  --stylua: ignore
-  miniclue.setup({
-    clues = {
-      Config.leader_group_clues,
-      miniclue.gen_clues.builtin_completion(),
-      miniclue.gen_clues.g(),
-      miniclue.gen_clues.windows({ submode_resize = true }),
-      miniclue.gen_clues.z(),
-    },
-    triggers = {
-      { mode = 'n', keys = '<Leader>' }, -- Leader triggers
-      { mode = 'x', keys = '<Leader>' },
-      { mode = 'n', keys = [[\]] },      -- mini.basics
-      { mode = 'n', keys = '[' },        -- mini.bracketed
-      { mode = 'n', keys = ']' },
-      { mode = 'x', keys = '[' },
-      { mode = 'x', keys = ']' },
-      { mode = 'i', keys = '<C-x>' },    -- Built-in completion
-      { mode = 'n', keys = 'g' },        -- `g` key
-      { mode = 'x', keys = 'g' },
-      { mode = 'n', keys = "'" },        -- Marks
-      { mode = 'n', keys = '`' },
-      { mode = 'x', keys = "'" },
-      { mode = 'x', keys = '`' },
-      { mode = 'n', keys = '"' },        -- Registers
-      { mode = 'x', keys = '"' },
-      { mode = 'i', keys = '<C-r>' },
-      { mode = 'c', keys = '<C-r>' },
-      { mode = 'n', keys = '<C-w>' },    -- Window commands
-      { mode = 'n', keys = 'z' },        -- `z` key
-      { mode = 'x', keys = 'z' },
-    },
-    window = { config = { border = 'none' } },
-  })
-end)
-
-later(function()
-    require("mini.diff").setup()
-    local function make_operator_rhs(operation)
-        return function() return MiniDiff.operator(operation) .. (operation == "yank" and "gh" or "") end
-    end
-
-    keymap(
-        "n",
-        "<leader>ghy",
-        make_operator_rhs("yank"),
-        { expr = true, remap = true, desc = "Copy hunk's reference lines" }
-    )
-    keymap("n", "<leader>ghr", make_operator_rhs("reset"), { expr = true, remap = true, desc = "Reset hunk" })
-    keymap("n", "<leader>ghs", make_operator_rhs("apply"), { expr = true, remap = true, desc = "Apply hunk" })
-    keymap(
-        "n",
-        "<leader>go",
-        function() return MiniDiff.toggle_overlay(0) end,
-        { expr = true, remap = true, desc = "Toggle diff overlay" }
-    )
-end)
-
-later(function() require("mini.git").setup() end)
-
-later(function()
-    local hipatterns = require("mini.hipatterns")
-    local hi_words = MiniExtra.gen_highlighter.words
-    hipatterns.setup({
-        highlighters = {
-            fixme = hi_words({ "FIXME", "Fixme", "fixme" }, "MiniHipatternsFixme"),
-            hack = hi_words({ "HACK", "Hack", "hack" }, "MiniHipatternsHack"),
-            todo = hi_words({ "TODO", "Todo", "todo" }, "MiniHipatternsTodo"),
-            note = hi_words({ "NOTE", "Note", "note" }, "MiniHipatternsNote"),
-
-            hex_color = hipatterns.gen_highlighter.hex_color(),
+    miniclue.setup({
+        clues = {
+            Config.leader_group_clues,
+            miniclue.gen_clues.builtin_completion(),
+            miniclue.gen_clues.g(),
+            miniclue.gen_clues.windows({ submode_resize = true }),
+            miniclue.gen_clues.z(),
         },
+        triggers = {
+            { mode = "n", keys = "<Leader>" }, -- Leader triggers
+            { mode = "x", keys = "<Leader>" },
+            { mode = "n", keys = [[\]] }, -- mini.basics
+            { mode = "n", keys = "[" }, -- mini.bracketed
+            { mode = "n", keys = "]" },
+            { mode = "n", keys = "g" }, -- `g` key
+            { mode = "n", keys = "s" }, -- mini.surround
+            { mode = "v", keys = "s" }, -- mini.surround
+            { mode = "n", keys = "w" }, -- mini.windows
+            { mode = "n", keys = "<C-w>" }, -- Window commands
+            { mode = "n", keys = "z" }, -- `z` key
+        },
+        window = { config = { border = "none" } },
     })
 end)
+
+later(function() require("mini.diff").setup() end)
+
+later(function() require("mini.git").setup() end)
 
 later(function()
     require("mini.misc").setup({ make_global = { "put", "put_text", "stat_summary", "bench_time" } })
     MiniMisc.setup_auto_root()
     MiniMisc.setup_termbg_sync()
-    MiniMisc.setup_restore_cursor()
 end)
 
 later(
