@@ -15,58 +15,6 @@ now(function()
 end)
 
 now(function()
-    local statusline = require("mini.statusline")
-
-    statusline.setup({
-        content = {
-            active = function()
-                local mode, mode_hl = MiniStatusline.section_mode({ trunc_width = 120 })
-                local git = MiniStatusline.section_git({ trunc_width = 40 })
-                local diff = MiniStatusline.section_diff({ trunc_width = 75 })
-                local diagnostics = MiniStatusline.section_diagnostics({ trunc_width = 75 })
-                local lsp = MiniStatusline.section_lsp({ trunc_width = 75 })
-                local filename = MiniStatusline.section_filename({ trunc_width = 140 })
-                local fileinfo = MiniStatusline.section_fileinfo({ trunc_width = 120 })
-                local location = MiniStatusline.section_location({ trunc_width = 75 })
-                local search = MiniStatusline.section_searchcount({ trunc_width = 75 })
-
-                return MiniStatusline.combine_groups({
-                    { hl = mode_hl, strings = { mode } },
-                    { hl = "MiniStatuslineDevinfo", strings = { git, diff } },
-                    "%<", -- Mark general truncate point
-                    { hl = "MiniStatuslineFilename", strings = { diagnostics, filename } },
-                    "%=", -- End left alignment
-                    { hl = "MiniStatuslineFileinfo", strings = { fileinfo, lsp } },
-                    { hl = mode_hl, strings = { search, location } },
-                })
-            end,
-        },
-    })
-    statusline.section_filename = function() return "%f %m" end
-
-    statusline.section_lsp = function()
-        local attached_clients = vim.lsp.get_clients()
-        local client_names = {}
-
-        for _, client in pairs(attached_clients) do
-            table.insert(client_names, client.name)
-        end
-
-        if vim.tbl_count(client_names) == 0 then return "" end
-
-        return string.format("[ %s ]", table.concat(client_names, " | "))
-    end
-
-    statusline.section_fileinfo = function()
-        local filetype = vim.bo.filetype
-        if (filetype == "") or vim.bo.buftype ~= "" then return "" end
-        return string.format("%s%%r", filetype)
-    end
-
-    statusline.section_location = function() return "[%p%% %L]" end
-end)
-
-now(function()
     require("mini.icons").setup({
         use_file_extension = function(ext, _)
             local suf3, suf4 = ext:sub(-3), ext:sub(-4)
@@ -77,14 +25,11 @@ now(function()
     later(MiniIcons.tweak_lsp_kind)
 end)
 
-later(function() require("mini.extra").setup() end)
-
 later(function()
     local ai = require("mini.ai")
     ai.setup({
         n_lines = 500,
         custom_textobjects = {
-            B = MiniExtra.gen_ai_spec.buffer(),
             o = ai.gen_spec.treesitter({ -- code block
                 a = { "@block.outer", "@conditional.outer", "@loop.outer" },
                 i = { "@block.inner", "@conditional.inner", "@loop.inner" },
@@ -134,22 +79,27 @@ end)
 
 later(function() require("mini.diff").setup() end)
 
-later(function() require("mini.git").setup() end)
-
-later(function()
-    require("mini.misc").setup({ make_global = { "put", "put_text", "stat_summary", "bench_time" } })
-    MiniMisc.setup_auto_root()
-    MiniMisc.setup_termbg_sync()
-end)
-
 later(
     function()
         require("mini.pairs").setup({
-            modes = { insert = true, command = true, terminal = false },
+            modes = { insert = true, command = false, terminal = false },
             skip_next = [=[[%w%%%'%[%"%.%`%$]]=],
             skip_ts = { "string" },
             skip_unbalanced = true,
             markdown = true,
+            mappings = {
+                [")"] = { action = "close", pair = "()", neigh_pattern = "[^\\]." },
+                ["]"] = { action = "close", pair = "[]", neigh_pattern = "[^\\]." },
+                ["}"] = { action = "close", pair = "{}", neigh_pattern = "[^\\]." },
+                [">"] = { action = "close", pair = "<>", neigh_pattern = "[^\\]." },
+                ["("] = { action = "open", pair = "()", neigh_pattern = ".[%s%z%)]", register = { cr = false } },
+                ["["] = { action = "open", pair = "[]", neigh_pattern = ".[%s%z%)}%]]", register = { cr = false } },
+                ["{"] = { action = "open", pair = "{}", neigh_pattern = ".[%s%z%)}%]]", register = { cr = false } },
+                ["<"] = { action = "open", pair = "<>", neigh_pattern = ".[%s%z%)}%]]", register = { cr = false } },
+                ['"'] = { action = "closeopen", pair = '""', neigh_pattern = "[^%w\\][^%w]", register = { cr = false } },
+                ["'"] = { action = "closeopen", pair = "''", neigh_pattern = "[^%w\\][^%w]", register = { cr = false } },
+                ["`"] = { action = "closeopen", pair = "``", neigh_pattern = "[^%w\\][^%w]", register = { cr = false } },
+            },
         })
     end
 )

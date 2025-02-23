@@ -202,15 +202,6 @@ keymap("n", "<leader>sl", function() Snacks.picker.loclist() end, { desc = "Loca
 keymap("n", "<leader>sR", function() Snacks.picker.resume() end, { desc = "Resume" })
 keymap("n", "<leader>su", function() Snacks.picker.undo() end, { desc = "Undo History" })
 keymap("n", "<leader>uC", function() Snacks.picker.colorschemes() end, { desc = "Colorschemes" })
-keymap("n", "gd", function() Snacks.picker.lsp_definitions() end, { desc = "Goto Definition" })
-keymap("n", "gD", function() Snacks.picker.lsp_declarations() end, { desc = "Goto Declaration" })
-keymap("n", "gr", function() Snacks.picker.lsp_references() end, { nowait = true, desc = "References" })
-keymap("n", "gI", function() Snacks.picker.lsp_implementations() end, { desc = "Goto Implementation" })
-keymap("n", "gt", function() Snacks.picker.lsp_type_definitions() end, { desc = "Goto T[y]pe Definition" })
-keymap("n", "<leader>ss", function() Snacks.picker.lsp_symbols() end, { desc = "LSP Symbols" })
-keymap("n", "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, { desc = "LSP Workspace Symbols" })
-keymap("n", "<leader>ss", function() Snacks.picker.lsp_symbols() end, { desc = "LSP Symbols" })
-keymap("n", "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, { desc = "LSP Workspace Symbols" })
 
 -- undotree
 keymap("n", "<leader>U", vim.cmd.UndotreeToggle, { desc = "Toggle undotree" })
@@ -225,3 +216,20 @@ keymap({ "n", "v" }, "<leader>sr", function()
         },
     })
 end, { desc = "Search and Replace" })
+
+-- AI
+keymap("n", "<leader>aa", function() require("CopilotChat").open() end, { desc = "Open CopilotChat" })
+keymap("n", "<leader>ab", function()
+    local input = vim.fn.input("Quick Chat: ")
+    if input ~= "" then
+        require("CopilotChat").ask(input, {
+            selection = require("CopilotChat.select").buffer,
+        })
+    end
+end, { desc = "CopilotChat buffer" })
+
+-- Clasp
+keymap("i", "<Right>", function() require("clasp").wrap("next") end, { desc = "Move bracket pair out" })
+keymap("i", "<Left>", function() require("clasp").wrap("prev") end, { desc = "Move bracket pair in" })
+keymap("n", "gl", function() require("clasp").wrap("next") end, { desc = "Move bracket pair out" })
+keymap("n", "gh", function() require("clasp").wrap("prev") end, { desc = "Move bracket pair in" })

@@ -117,13 +117,19 @@ vim.api.nvim_create_autocmd("LspAttach", {
         keymap("n", "K", vim.lsp.buf.hover, { buffer = event.buf })
         keymap("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename" })
         keymap("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code Action" })
+        keymap("n", "gd", function() Snacks.picker.lsp_definitions() end, { desc = "Goto Definition" })
+        keymap("n", "gD", function() Snacks.picker.lsp_declarations() end, { desc = "Goto Declaration" })
+        keymap("n", "gr", function() Snacks.picker.lsp_references() end, { nowait = true, desc = "References" })
+        keymap("n", "gI", function() Snacks.picker.lsp_implementations() end, { desc = "Goto Implementation" })
+        keymap("n", "gt", function() Snacks.picker.lsp_type_definitions() end, { desc = "Goto T[y]pe Definition" })
+        keymap("n", "<leader>ss", function() Snacks.picker.lsp_symbols() end, { desc = "LSP Symbols" })
+        keymap("n", "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, { desc = "LSP Workspace Symbols" })
+        keymap("n", "<leader>ss", function() Snacks.picker.lsp_symbols() end, { desc = "LSP Symbols" })
+        keymap("n", "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, { desc = "LSP Workspace Symbols" })
         --stylua: ignore end
 
         local client = vim.lsp.get_client_by_id(event.data.client_id)
-        if client and client.name == "vtsls" then
-            print("Setting ESLINT_D_ROOT to " .. client.root_dir)
-            vim.env.ESLINT_D_ROOT = client.root_dir
-        end
+        if client and client.name == "vtsls" then vim.env.ESLINT_D_ROOT = client.root_dir end
 
         if client and client:supports_method("textDocument/inlayHint") then
             vim.lsp.inlay_hint.enable(true, { bufnr = event.buf })
@@ -140,7 +146,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
             keymap("n", "<leader>\\l", function() vim.lsp.codelens.refresh() end, { desc = "[T]oggle code lens refresh" })
         end
 
-        if client and client:supports_method("textDocument/documentHighlight") then
+        if client and client.server_capabilities.documentHighlightProvider then
             local group = vim.api.nvim_create_augroup("lsp_highlight", { clear = false })
             vim.api.nvim_clear_autocmds({ buffer = event.buf, group = group })
 
@@ -195,10 +201,18 @@ vim.api.nvim_create_autocmd("LspAttach", {
 -- eslint_d linting
 vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave", "TextChanged", "LspAttach" }, {
     group = augroup("lint-eslint"),
-    callback = function()
+    pattern = { "*.js", "*.jsx", "*.ts", "*.tsx" },
+    callback = function(event)
         local client = vim.lsp.get_clients({ name = "vtsls" })[1]
         if client then require("lint").try_lint("eslint_d", { cwd = client.root_dir }) end
     end,
+})
+
+-- clippy lintin
+vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave", "TextChanged", "LspAttach" }, {
+    group = augroup("lint-clippy"),
+    pattern = { "*.rs" },
+    callback = function(event) require("lint").try_lint("clippy") end,
 })
 
 -- go to last loc when opening a buffer

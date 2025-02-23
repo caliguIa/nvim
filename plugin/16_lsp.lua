@@ -1,6 +1,6 @@
 local add, later = MiniDeps.add, MiniDeps.later
 
-local clients = { "lua_ls", "vtsls", "intelephense", "nil_ls", "zls" }
+local clients = { "lua_ls", "vtsls", "intelephense", "nil_ls", "zls", "rust-analyzer" }
 local base_capabilities = vim.lsp.protocol.make_client_capabilities()
 
 later(function()

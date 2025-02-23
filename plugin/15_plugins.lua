@@ -1,19 +1,19 @@
-local later = MiniDeps.later
+local add, later = MiniDeps.add, MiniDeps.later
 
-later(function() require("blame").setup() end)
-later(function() require("flash").setup() end)
-later(function() require("git-conflict").setup() end)
-later(function() require("harpoon"):setup() end)
-later(function() require("hanzel").setup() end)
-later(function() require("zendiagram").setup() end)
-later(function() require("render-markdown").setup() end)
+-- Editor -----------
 later(function()
+    add("folke/flash.nvim")
+    require("flash").setup()
+end)
+later(function()
+    add({ source = "ThePrimeagen/harpoon", checkout = "harpoon2", depends = { "nvim-lua/plenary.nvim" } })
+    require("harpoon"):setup()
+end)
+later(function()
+    add("folke/snacks.nvim")
     require("snacks").setup({
         bigfile = { enabled = true },
-        dashboard = { enabled = false },
-        explorer = { enabled = false },
         indent = { enabled = true },
-        input = { enabled = false },
         picker = {
             enabled = true,
             cwd_bonus = true, -- give bonus for matching files in the cwd
@@ -27,27 +27,60 @@ later(function()
                 buffers = { layout = "select" },
             },
         },
-        notifier = { enabled = false },
-        quickfile = { enabled = false },
-        scope = { enabled = false },
-        scroll = { enabled = false },
-        statuscolumn = { enabled = false },
-        words = { enabled = true },
     })
 end)
-later(
-    function()
-        require("neogit").setup({
-            disable_insert_on_commit = "auto",
-            integrations = {
-                diffview = false,
-                fzf_lua = false,
-            },
-            initial_branch_name = "DREAD-",
-        })
-    end
-)
 later(function()
+    add("stevearc/oil.nvim")
+    require("oil").setup({
+        lsp_file_methods = { autosave_changes = true },
+        view_options = { show_hidden = true },
+        keymaps = { ["q"] = "actions.close" },
+    })
+end)
+later(function()
+    add("MagicDuck/grug-far.nvim")
+    require("grug-far").setup()
+end)
+later(function() add("mbbill/undotree") end)
+---------------------
+
+-- Git
+later(function()
+    add({ source = "akinsho/git-conflict.nvim", checkout = "v2.1.0" })
+    require("git-conflict").setup()
+end)
+later(function()
+    add("FabijanZulj/blame.nvim")
+    require("blame").setup()
+end)
+later(function()
+    add({
+        source = "NeogitOrg/neogit",
+        depends = {
+            "nvim-lua/plenary.nvim",
+        },
+    })
+    require("neogit").setup({
+        disable_insert_on_commit = "auto",
+        integrations = {
+            diffview = false,
+            fzf_lua = false,
+        },
+        initial_branch_name = "DREAD-",
+    })
+end)
+---------------------
+
+-- UI
+later(function()
+    add({
+        source = "MeanderingProgrammer/render-markdown.nvim",
+        depends = { "nvim-treesitter/nvim-treesitter", "echasnovski/mini.nvim" },
+    })
+    require("render-markdown").setup()
+end)
+later(function()
+    add({ source = "catppuccin/nvim", name = "catppuccin" })
     require("catppuccin").setup({
         integrations = {
             markdown = true,
@@ -69,7 +102,11 @@ later(function()
 
     vim.cmd.colorscheme("catppuccin-mocha")
 end)
+---------------------
+
+-- Lang
 later(function()
+    add("stevearc/conform.nvim")
     local util = require("conform.util")
     require("conform").setup({
         stop_after_first = false,
@@ -93,6 +130,7 @@ later(function()
             jsonc = { "prettier" },
             markdown = { "prettier" },
             nix = { "nixfmt" },
+            rust = { "rustfmt" },
             scss = { "prettier" },
             vue = { "prettier" },
             yaml = { "prettier" },
@@ -119,22 +157,20 @@ later(function()
         },
     })
 end)
-later(
-    function()
-        require("oil").setup({
-            lsp_file_methods = {
-                autosave_changes = true,
-            },
-            view_options = {
-                show_hidden = true,
-            },
-            keymaps = {
-                ["q"] = "actions.close",
-            },
-        })
-    end
-)
 later(function()
+    add({
+        source = "nvim-treesitter/nvim-treesitter",
+        checkout = "master",
+        monitor = "main",
+        hooks = { post_checkout = function() vim.cmd("TSUpdate") end },
+        depends = {
+            "windwp/nvim-ts-autotag",
+            "nvim-treesitter/nvim-treesitter-context",
+        },
+    })
+    add("nvim-treesitter/nvim-treesitter-textobjects")
+    add("folke/ts-comments.nvim")
+    add("xzbdmw/clasp.nvim")
     require("nvim-treesitter.configs").setup({
         --stylua: ignore
         ensure_installed = {
@@ -160,28 +196,32 @@ later(function()
     require("ts-comments").setup()
     require("treesitter-context").setup({ mode = "cursor", max_lines = 3 })
     require("nvim-ts-autotag").setup()
+    require("clasp").setup({
+        pairs = { ["{"] = "}", ['"'] = '"', ["'"] = "'", ["("] = ")", ["["] = "]" },
+    })
 end)
-later(
-    function()
-        require("copilot").setup({
-            suggestion = {
-                enabled = false,
-                auto_trigger = true,
-                keymap = {
-                    accept = false,
-                    next = "<M-]>",
-                    prev = "<M-[>",
-                },
-            },
-            panel = { enabled = false },
-            filetypes = {
-                markdown = true,
-                help = true,
-            },
-        })
-    end
-)
 later(function()
+    local build_blink = function(params)
+        vim.notify("Building blink.cmp", vim.log.levels.INFO)
+        local obj = vim.system({ "nix", "run", ".#build-plugin" }, { cwd = params.path }):wait()
+        if obj.code == 0 then
+            vim.notify("Building blink.cmp done", vim.log.levels.INFO)
+        else
+            vim.notify("Building blink.cmp failed", vim.log.levels.ERROR)
+        end
+    end
+    add({
+        source = "saghen/blink.cmp",
+        hooks = {
+            post_install = build_blink,
+            post_checkout = build_blink,
+        },
+        depends = {
+            "rafamadriz/friendly-snippets",
+            "saghen/blink.compat",
+            "giuxtaposition/blink-cmp-copilot",
+        },
+    })
     local opts = {
         completion = {
             accept = {
@@ -299,6 +339,61 @@ later(function()
     require("blink.cmp").setup(opts)
 end)
 later(function()
+    add("mfussenegger/nvim-lint")
+    vim.env.ESLINT_D_PPID = vim.fn.getpid()
+    require("lint").linters_by_ft = {
+        javascript = { "eslint_d" },
+        javascriptreact = { "eslint_d" },
+        ["javascript.jsx"] = { "eslint_d" },
+        typescript = { "eslint_d" },
+        typescriptreact = { "eslint_d" },
+        ["typescript.tsx"] = { "eslint_d" },
+        rust = { "clippy" },
+    }
+end)
+---------------------
+
+--- AI
+later(function()
+    add("zbirenbaum/copilot.lua")
+    add({
+        source = "CopilotC-Nvim/CopilotChat.nvim",
+        depends = { "zbirenbaum/copilot.lua", "nvim-lua/plenary.nvim" },
+    })
+    require("copilot").setup({
+        suggestion = {
+            enabled = false,
+            auto_trigger = true,
+            keymap = {
+                accept = false,
+                next = "<M-]>",
+                prev = "<M-[>",
+            },
+        },
+        panel = { enabled = false },
+        filetypes = {
+            markdown = true,
+            help = true,
+        },
+    })
+    require("CopilotChat").setup()
+end)
+
+--------------------
+
+-- Test
+later(function()
+    add({
+        source = "nvim-neotest/neotest",
+        depends = {
+            "nvim-neotest/nvim-nio",
+            "nvim-lua/plenary.nvim",
+            "antoinemadec/FixCursorHold.nvim",
+            "nvim-treesitter/nvim-treesitter",
+            "olimorris/neotest-phpunit",
+            "marilari88/neotest-vitest",
+        },
+    })
     local opts = {
         adapters = {
             ["neotest-phpunit"] = {},
@@ -341,15 +436,24 @@ later(function()
 
     require("neotest").setup(opts)
 end)
-later(function() require("grug-far").setup() end)
+---------------------
+
+-- Local
 later(function()
-    vim.env.ESLINT_D_PPID = vim.fn.getpid()
-    require("lint").linters_by_ft = {
-        javascript = { "eslint_d" },
-        javascriptreact = { "eslint_d" },
-        ["javascript.jsx"] = { "eslint_d" },
-        typescript = { "eslint_d" },
-        typescriptreact = { "eslint_d" },
-        ["typescript.tsx"] = { "eslint_d" },
-    }
+    local dev_path = vim.fn.expand("~/dev/nvim-plugins")
+
+    local function use_local_plugin(name)
+        local plugin_path = dev_path .. "/" .. name
+        vim.opt.runtimepath:prepend(plugin_path)
+
+        local plugin_file = plugin_path .. "/plugin/" .. name:gsub("%.nvim$", "") .. ".lua"
+        if vim.fn.filereadable(plugin_file) == 1 then vim.cmd("source " .. plugin_file) end
+    end
+
+    use_local_plugin("hanzel.nvim")
+    use_local_plugin("zendiagram.nvim")
+
+    require("hanzel").setup()
+    require("zendiagram").setup()
 end)
+---------------------
