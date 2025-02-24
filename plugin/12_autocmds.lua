@@ -127,6 +127,14 @@ vim.api.nvim_create_autocmd("LspAttach", {
         keymap("n", "<leader>ss", function() Snacks.picker.lsp_symbols() end, { desc = "LSP Symbols" })
         keymap("n", "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, { desc = "LSP Workspace Symbols" })
         --stylua: ignore end
+        vim.keymap.set({ "n", "x" }, "]d", function()
+            vim.diagnostic.jump({ count = 1 })
+            vim.schedule(function() require("zendiagram").open() end)
+        end, { desc = "Jump to next diagnostic" })
+        vim.keymap.set({ "n", "x" }, "[d", function()
+            vim.diagnostic.jump({ count = -1 })
+            vim.schedule(function() require("zendiagram").open() end)
+        end, { desc = "Jump to prev diagnostic" })
 
         local client = vim.lsp.get_client_by_id(event.data.client_id)
         if client and client.name == "vtsls" then vim.env.ESLINT_D_ROOT = client.root_dir end
@@ -202,7 +210,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
 vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave", "TextChanged", "LspAttach" }, {
     group = augroup("lint-eslint"),
     pattern = { "*.js", "*.jsx", "*.ts", "*.tsx" },
-    callback = function(event)
+    callback = function()
         local client = vim.lsp.get_clients({ name = "vtsls" })[1]
         if client then require("lint").try_lint("eslint_d", { cwd = client.root_dir }) end
     end,
@@ -212,7 +220,7 @@ vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave", "Tex
 vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave", "TextChanged", "LspAttach" }, {
     group = augroup("lint-clippy"),
     pattern = { "*.rs" },
-    callback = function(event) require("lint").try_lint("clippy") end,
+    callback = function() require("lint").try_lint("clippy") end,
 })
 
 -- go to last loc when opening a buffer
@@ -228,3 +236,7 @@ vim.api.nvim_create_autocmd("BufReadPost", {
         if mark[1] > 0 and mark[1] <= lcount then pcall(vim.api.nvim_win_set_cursor, 0, mark) end
     end,
 })
+
+-- vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+--     callback = function() require("zendiagram").open({ focus = false }) end,
+-- })

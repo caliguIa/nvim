@@ -80,6 +80,7 @@ later(function()
     require("render-markdown").setup()
 end)
 later(function()
+    add("savq/melange-nvim")
     add({ source = "catppuccin/nvim", name = "catppuccin" })
     require("catppuccin").setup({
         integrations = {
@@ -100,7 +101,9 @@ later(function()
         },
     })
 
+    -- vim.o.background = "light"
     vim.cmd.colorscheme("catppuccin-mocha")
+    -- vim.cmd.colorscheme("melange")
 end)
 ---------------------
 

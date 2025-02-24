@@ -178,6 +178,7 @@ keymap(
     function() Snacks.picker.files({ cwd = vim.fn.stdpath("config") }) end,
     { desc = "Find Config File" }
 )
+keymap("n", "<leader>sC", function() Snacks.picker.colorschemes() end, { desc = "Search colorschemes" })
 keymap("n", "<leader>sf", function() Snacks.picker.files() end, { desc = "Find Files" })
 keymap("n", "<leader>so", function() Snacks.picker.recent() end, { desc = "Recent" })
 keymap("n", "<leader>gsb", function() Snacks.picker.git_branches() end, { desc = "Git Branches" })
