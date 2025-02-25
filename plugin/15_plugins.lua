@@ -347,9 +347,6 @@ end)
 --- AI
 later(function()
     add("zbirenbaum/copilot.lua")
-    add({
-        depends = { "zbirenbaum/copilot.lua", "nvim-lua/plenary.nvim" },
-    })
     require("copilot").setup({
         suggestion = {
             enabled = false,
