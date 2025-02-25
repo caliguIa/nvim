@@ -6,10 +6,6 @@ later(function()
     require("flash").setup()
 end)
 later(function()
-    add({ source = "ThePrimeagen/harpoon", checkout = "harpoon2", depends = { "nvim-lua/plenary.nvim" } })
-    require("harpoon"):setup()
-end)
-later(function()
     add("folke/snacks.nvim")
     require("snacks").setup({
         bigfile = { enabled = true },
@@ -72,15 +68,14 @@ end)
 ---------------------
 
 -- UI
+-- later(function()
+--     add({
+--         source = "MeanderingProgrammer/render-markdown.nvim",
+--         depends = { "nvim-treesitter/nvim-treesitter", "echasnovski/mini.nvim" },
+--     })
+--     require("render-markdown").setup()
+-- end)
 later(function()
-    add({
-        source = "MeanderingProgrammer/render-markdown.nvim",
-        depends = { "nvim-treesitter/nvim-treesitter", "echasnovski/mini.nvim" },
-    })
-    require("render-markdown").setup()
-end)
-later(function()
-    add("savq/melange-nvim")
     add({ source = "catppuccin/nvim", name = "catppuccin" })
     require("catppuccin").setup({
         integrations = {
@@ -101,9 +96,7 @@ later(function()
         },
     })
 
-    -- vim.o.background = "light"
     vim.cmd.colorscheme("catppuccin-mocha")
-    -- vim.cmd.colorscheme("melange")
 end)
 ---------------------
 
@@ -171,9 +164,7 @@ later(function()
             "nvim-treesitter/nvim-treesitter-context",
         },
     })
-    add("nvim-treesitter/nvim-treesitter-textobjects")
     add("folke/ts-comments.nvim")
-    add("xzbdmw/clasp.nvim")
     require("nvim-treesitter.configs").setup({
         --stylua: ignore
         ensure_installed = {
@@ -199,9 +190,6 @@ later(function()
     require("ts-comments").setup()
     require("treesitter-context").setup({ mode = "cursor", max_lines = 3 })
     require("nvim-ts-autotag").setup()
-    require("clasp").setup({
-        pairs = { ["{"] = "}", ['"'] = '"', ["'"] = "'", ["("] = ")", ["["] = "]" },
-    })
 end)
 later(function()
     local build_blink = function(params)
@@ -360,7 +348,6 @@ end)
 later(function()
     add("zbirenbaum/copilot.lua")
     add({
-        source = "CopilotC-Nvim/CopilotChat.nvim",
         depends = { "zbirenbaum/copilot.lua", "nvim-lua/plenary.nvim" },
     })
     require("copilot").setup({
@@ -379,7 +366,6 @@ later(function()
             help = true,
         },
     })
-    require("CopilotChat").setup()
 end)
 
 --------------------
