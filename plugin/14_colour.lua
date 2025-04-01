@@ -32,7 +32,7 @@ if vim.fn.exists("syntax_on") then vim.cmd("syntax reset") end
 local function highlight(group, opts) vim.api.nvim_set_hl(0, group, opts) end
 
 -- Base highlights
-highlight("Normal", { fg = C.dull_4, bg = C.background })
+highlight("Normal", { fg = C.dull_3, bg = C.background })
 highlight("Search", { bg = C.dull_8 })
 highlight("IncSearch", { fg = C.dull_0, bg = C.dull_7 })
 highlight("Substitute", { bg = C.dull_8 })
@@ -101,10 +101,24 @@ highlight("FloatBorder", { fg = C.dull_7 })
 highlight("FloatTitle", { fg = C.dull_0 })
 highlight("NormalFloat", { fg = C.dull_4, bg = C.alt_background })
 
+-- Winbar
+highlight("WinBar", { bg = C.background })
+highlight("HanzelFile", { fg = C.dull_1 })
+highlight("HanzelDirectory", { fg = C.dull_7 })
+highlight("HanzelSeparator", { fg = C.dull_9 })
+highlight("HanzelFileIcon", { fg = C.dull_2 })
+
 -- Mini
 highlight("MiniFilesNormal", { bg = C.background })
 highlight("MiniPickNormal", { bg = C.background })
 highlight("MiniIndentscopeSymbol", { fg = C.dull_6 })
+highlight("MiniStatuslineDevinfo", { bg = C.dull_9 })
+highlight("MiniStatuslineModeNormal", { bg = C.dull_9 })
+highlight("MiniStatuslineModeInsert", { bg = C.dull_9 })
+highlight("MiniStatuslineModeVisual", { bg = C.dull_9 })
+highlight("MiniStatuslineModeReplace", { bg = C.dull_9 })
+highlight("MiniStatuslineModeCommand", { bg = C.dull_9 })
+highlight("MiniStatuslineModeOther", { bg = C.dull_9 })
 highlight("hl-IblIndent", { fg = C.dull_7 })
 
 -- Treesitter syntax highlighting

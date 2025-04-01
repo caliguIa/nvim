@@ -344,7 +344,9 @@ later(function()
     use_local_plugin("hanzel.nvim")
     use_local_plugin("zendiagram.nvim")
 
-    require("hanzel").setup()
+    require("hanzel").setup({ icons = {
+        directory = false,
+    } })
     require("zendiagram").setup()
 end)
 ---------------------
