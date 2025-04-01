@@ -25,6 +25,14 @@ keymap("n", "m", "<Nop>", { desc = "Disable marks because I do not use them" })
 keymap("n", "x", '"_x', { desc = "Delete character without copying" })
 keymap("n", "<leader>X", "<cmd>!chmod +x %<CR>", { desc = "Make file executable" })
 
+-- Move Lines
+keymap("n", "<A-j>", "<cmd>execute 'move .+' . v:count1<cr>==", { desc = "Move Down" })
+keymap("n", "<A-k>", "<cmd>execute 'move .-' . (v:count1 + 1)<cr>==", { desc = "Move Up" })
+keymap("i", "<A-j>", "<esc><cmd>m .+1<cr>==gi", { desc = "Move Down" })
+keymap("i", "<A-k>", "<esc><cmd>m .-2<cr>==gi", { desc = "Move Up" })
+keymap("v", "<A-j>", ":<C-u>execute \"'<,'>move '>+\" . v:count1<cr>gv=gv", { desc = "Move Down" })
+keymap("v", "<A-k>", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<cr>gv=gv", { desc = "Move Up" })
+
 keymap("n", "<C-d>", "<C-d>zz", { desc = "move [d]own half-page and center" })
 keymap("n", "<C-u>", "<C-u>zz", { desc = "move [u]p half-page and center" })
 
@@ -59,10 +67,10 @@ keymap("n", "<leader>w", "<c-w>", { desc = "Windows", remap = true })
 keymap("n", "<leader><tab>d", "<cmd>tabclose<cr>", { desc = "Close Tab" })
 
 -- better up/down
-keymap({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true })
-keymap({ "n", "x" }, "<Down>", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true })
-keymap({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true })
-keymap({ "n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true })
+keymap({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true })
+keymap({ "n", "x" }, "<Down>", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr = true, silent = true })
+keymap({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
+keymap({ "n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
 
 -- Quickfix list
 keymap("n", "<leader>xq", "<cmd>copen<cr>", { desc = "Quickfix List" })
@@ -89,6 +97,19 @@ keymap(
 keymap("n", "<cr>", function() require("flash").jump() end, { desc = "Flash" })
 keymap("n", "S", function() require("flash").treesitter() end, { desc = "Flash Treesitter" })
 keymap("c", "<c-s>", function() require("flash").toggle() end, { desc = "Toggle Flash Search" })
+
+-- harpoon
+keymap("n", "ma", function() require("harpoon"):list():add() end, { desc = "Mark Add" })
+keymap(
+    "n",
+    "<leader>h",
+    function() require("harpoon").ui:toggle_quick_menu(require("harpoon"):list()) end,
+    { desc = "Harpoon Quick Menu" }
+)
+keymap("n", "mj", function() require("harpoon"):list():select(1) end, { desc = "Jump to Mark 1" })
+keymap("n", "mk", function() require("harpoon"):list():select(2) end, { desc = "Jump to Mark 2" })
+keymap("n", "ml", function() require("harpoon"):list():select(3) end, { desc = "Jump to Mark 3" })
+keymap("n", "m;", function() require("harpoon"):list():select(4) end, { desc = "Jump to Mark 4" })
 
 -- mini
 keymap("n", "<leader>nh", MiniNotify.show_history, { desc = "Show notification history" })
@@ -134,6 +155,12 @@ keymap(
     { desc = "Toggle Output Panel (Neotest)" }
 )
 keymap("n", "<leader>tS", function() require("neotest").run.stop() end, { desc = "Stop (Neotest)" })
+keymap(
+    "n",
+    "<leader>tw",
+    function() require("neotest").watch.toggle(vim.fn.expand("%")) end,
+    { desc = "Toggle Watch (Neotest)" }
+)
 
 -- oil
 keymap("n", "<Leader>fe", "<CMD>Oil<CR>", { desc = "File explorer" })
@@ -151,7 +178,6 @@ keymap(
     function() Snacks.picker.files({ cwd = vim.fn.stdpath("config") }) end,
     { desc = "Find Config File" }
 )
-keymap("n", "<leader>sC", function() Snacks.picker.colorschemes() end, { desc = "Search colorschemes" })
 keymap("n", "<leader>sf", function() Snacks.picker.files() end, { desc = "Find Files" })
 keymap("n", "<leader>so", function() Snacks.picker.recent() end, { desc = "Recent" })
 keymap("n", "<leader>gsb", function() Snacks.picker.git_branches() end, { desc = "Git Branches" })
@@ -176,6 +202,26 @@ keymap("n", "<leader>sl", function() Snacks.picker.loclist() end, { desc = "Loca
 keymap("n", "<leader>sR", function() Snacks.picker.resume() end, { desc = "Resume" })
 keymap("n", "<leader>su", function() Snacks.picker.undo() end, { desc = "Undo History" })
 keymap("n", "<leader>uC", function() Snacks.picker.colorschemes() end, { desc = "Colorschemes" })
+keymap("n", "gd", function() Snacks.picker.lsp_definitions() end, { desc = "Goto Definition" })
+keymap("n", "gD", function() Snacks.picker.lsp_declarations() end, { desc = "Goto Declaration" })
+keymap("n", "gr", function() Snacks.picker.lsp_references() end, { nowait = true, desc = "References" })
+keymap("n", "gI", function() Snacks.picker.lsp_implementations() end, { desc = "Goto Implementation" })
+keymap("n", "gt", function() Snacks.picker.lsp_type_definitions() end, { desc = "Goto T[y]pe Definition" })
+keymap("n", "<leader>ss", function() Snacks.picker.lsp_symbols() end, { desc = "LSP Symbols" })
+keymap("n", "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, { desc = "LSP Workspace Symbols" })
+keymap("n", "<leader>ss", function() Snacks.picker.lsp_symbols() end, { desc = "LSP Symbols" })
+keymap("n", "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, { desc = "LSP Workspace Symbols" })
 
 -- undotree
 keymap("n", "<leader>U", vim.cmd.UndotreeToggle, { desc = "Toggle undotree" })
+
+-- grug
+keymap({ "n", "v" }, "<leader>sr", function()
+    local ext = vim.bo.buftype == "" and vim.fn.expand("%:e")
+    require("grug-far").open({
+        transient = true,
+        prefills = {
+            filesFilter = ext and ext ~= "" and "*." .. ext or nil,
+        },
+    })
+end, { desc = "Search and Replace" })
