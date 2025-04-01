@@ -1,6 +1,7 @@
 return {
     cmd = { "vtsls", "--stdio" },
-    root_dir = find_root_pattern({ "tsconfig.json", "package.json", "jsconfig.json", ".git" }),
+    -- root_dir = find_root_pattern({ "tsconfig.json", "package.json", "jsconfig.json", ".git" }),
+    root_markers = { "tsconfig.json", "package.json", "jsconfig.json", ".git" },
     single_file_support = true,
     filetypes = {
         "javascript",

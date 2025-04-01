@@ -2,7 +2,7 @@ return {
     cmd = { "rust-analyzer" },
     filetypes = { "rust" },
     single_file_support = true,
-    find_root_pattern({ ".git", "Cargo.toml" }),
+    root_markers = { ".git", "Cargo.toml" },
     settings = {
         diagnostics = {
             enable = true,

@@ -1,0 +1,40 @@
+return {
+    cmd = { "phpactor", "language-server", "-vvv" },
+    filetypes = { "php" },
+    -- root_dir = find_root_pattern({ "composer.json" }),
+    root_markers = { "composer.json" },
+    settings = {
+        phpactor = {
+            language_server_phpstan = { enabled = false },
+            language_server_psalm = { enabled = false },
+            inlayHints = {
+                enable = true,
+                parameterHints = true,
+                typeHints = true,
+            },
+        },
+    },
+    capabilities = {
+        codeActionProvider = true, -- Keep only this enabled
+        completionProvider = nil,
+        hoverProvider = nil,
+        definitionProvider = nil,
+        typeDefinitionProvider = nil,
+        implementationProvider = nil,
+        referencesProvider = nil,
+        documentSymbolProvider = nil,
+        documentFormattingProvider = nil,
+        diagnosticProvider = nil,
+    },
+    on_attach = function(client)
+        client.server_capabilities.hoverProvider = false
+        client.server_capabilities.documentSymbolProvider = false
+        client.server_capabilities.referencesProvider = false
+        client.server_capabilities.completionProvider = false
+        client.server_capabilities.documentFormattingProvider = false
+        client.server_capabilities.definitionProvider = false
+        client.server_capabilities.implementationProvider = true
+        client.server_capabilities.typeDefinitionProvider = false
+        client.server_capabilities.diagnosticProvider = false
+    end,
+}

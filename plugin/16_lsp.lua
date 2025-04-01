@@ -1,21 +1,19 @@
-local add, later = MiniDeps.add, MiniDeps.later
-
-local clients = { "lua_ls", "vtsls", "intelephense", "nil_ls", "zls", "rust-analyzer" }
-local base_capabilities = vim.lsp.protocol.make_client_capabilities()
+local later = MiniDeps.later
 
 later(function()
-    add({ source = "saghen/blink.cmp" })
-    local enhanced_capabilities = require("blink.cmp").get_lsp_capabilities(base_capabilities)
+    vim.lsp.config("*", {
+        capabilities = require("blink.cmp").get_lsp_capabilities({
+            textDocument = {
+                foldingRange = {
+                    dynamicRegistration = false,
+                    lineFoldingOnly = true,
+                },
+            },
+        }),
+        root_markers = { ".git" },
+    })
 
-    for _, client in pairs(clients) do
-        local cur_config = vim.lsp.config[client]
-        if cur_config then
-            vim.lsp.config(client, {
-                capabilities = enhanced_capabilities,
-                cmd = { vim.fn.exepath(cur_config.cmd[1]), unpack(cur_config.cmd, 2) },
-            })
-            vim.lsp.enable(client)
-        else
-        end
-    end
+    vim.iter(vim.api.nvim_get_runtime_file("lsp/*.lua", true))
+        :map(function(server_config_path) return vim.fs.basename(server_config_path):match("^(.*)%.lua$") end)
+        :each(function(server_name) vim.lsp.enable(server_name) end)
 end)

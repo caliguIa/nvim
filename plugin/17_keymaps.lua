@@ -3,19 +3,6 @@ vim.keymap.del("n", "gra")
 vim.keymap.del("n", "gri")
 vim.keymap.del("n", "grn")
 
-_G.Config.leader_group_clues = {
-    { mode = "n", keys = "<Leader>b", desc = "+Buffer" },
-    { mode = "n", keys = "<Leader>c", desc = "+Code" },
-    { mode = "n", keys = "<Leader>f", desc = "+File" },
-    { mode = "n", keys = "<Leader>g", desc = "+Git" },
-    { mode = "n", keys = "<Leader>m", desc = "+Marks" },
-    { mode = "n", keys = "<Leader>r", desc = "+Rename" },
-    { mode = "n", keys = "<Leader>s", desc = "+Search" },
-    { mode = "n", keys = "<Leader>t", desc = "+Test" },
-    { mode = "n", keys = "<Leader>w", desc = "+Window" },
-    { mode = "n", keys = "<Leader><tab>", desc = "+Tabs" },
-}
-
 -- Better command history navigation
 keymap("c", "<C-p>", "<Up>", { silent = false })
 keymap("c", "<C-n>", "<Down>", { silent = false })
@@ -24,14 +11,6 @@ keymap("n", "q", "<Nop>", { desc = "Disable macro recording because I do not use
 keymap("n", "m", "<Nop>", { desc = "Disable marks because I do not use them" })
 keymap("n", "x", '"_x', { desc = "Delete character without copying" })
 keymap("n", "<leader>X", "<cmd>!chmod +x %<CR>", { desc = "Make file executable" })
-
--- Move Lines
-keymap("n", "<A-j>", "<cmd>execute 'move .+' . v:count1<cr>==", { desc = "Move Down" })
-keymap("n", "<A-k>", "<cmd>execute 'move .-' . (v:count1 + 1)<cr>==", { desc = "Move Up" })
-keymap("i", "<A-j>", "<esc><cmd>m .+1<cr>==gi", { desc = "Move Down" })
-keymap("i", "<A-k>", "<esc><cmd>m .-2<cr>==gi", { desc = "Move Up" })
-keymap("v", "<A-j>", ":<C-u>execute \"'<,'>move '>+\" . v:count1<cr>gv=gv", { desc = "Move Down" })
-keymap("v", "<A-k>", ":<C-u>execute \"'<,'>move '<-\" . (v:count1 + 1)<cr>gv=gv", { desc = "Move Up" })
 
 keymap("n", "<C-d>", "<C-d>zz", { desc = "move [d]own half-page and center" })
 keymap("n", "<C-u>", "<C-u>zz", { desc = "move [u]p half-page and center" })
@@ -83,33 +62,14 @@ keymap("n", "<leader><tab>[", "<cmd>tabprevious<cr>", { desc = "Previous" })
 keymap("n", "<leader><tab>d", "<cmd>tabclose<cr>", { desc = "Close current" })
 keymap("n", "<leader><tab>o", "<cmd>tabonly<cr>", { desc = "Close other" })
 
--- git
-keymap("n", "<leader>gb", "<cmd>BlameToggle<cr>", { desc = "Git blame" })
-keymap("n", "<Leader>gg", function() require("neogit").open() end, { desc = "Git" })
-keymap(
-    "n",
-    "<leader>go",
-    function() return MiniDiff.toggle_overlay(0) end,
-    { expr = true, remap = true, desc = "Toggle diff overlay" }
-)
-
 -- flash
 keymap("n", "<cr>", function() require("flash").jump() end, { desc = "Flash" })
 keymap("n", "S", function() require("flash").treesitter() end, { desc = "Flash Treesitter" })
 keymap("c", "<c-s>", function() require("flash").toggle() end, { desc = "Toggle Flash Search" })
 
--- harpoon
-keymap("n", "ma", function() require("harpoon"):list():add() end, { desc = "Mark Add" })
-keymap(
-    "n",
-    "<leader>h",
-    function() require("harpoon").ui:toggle_quick_menu(require("harpoon"):list()) end,
-    { desc = "Harpoon Quick Menu" }
-)
-keymap("n", "mj", function() require("harpoon"):list():select(1) end, { desc = "Jump to Mark 1" })
-keymap("n", "mk", function() require("harpoon"):list():select(2) end, { desc = "Jump to Mark 2" })
-keymap("n", "ml", function() require("harpoon"):list():select(3) end, { desc = "Jump to Mark 3" })
-keymap("n", "m;", function() require("harpoon"):list():select(4) end, { desc = "Jump to Mark 4" })
+-- Easy insertion of a trailing ; or , from insert mode.
+keymap("i", ";;", "<Esc>A;<Esc>")
+keymap("i", ",,", "<Esc>A,<Esc>")
 
 -- mini
 keymap("n", "<leader>nh", MiniNotify.show_history, { desc = "Show notification history" })
@@ -162,66 +122,171 @@ keymap(
     { desc = "Toggle Watch (Neotest)" }
 )
 
--- oil
-keymap("n", "<Leader>fe", "<CMD>Oil<CR>", { desc = "File explorer" })
+keymap("n", "<Leader>fe", function() MiniFiles.open() end, { desc = "File explorer" })
 
--- snacks
-keymap("n", "<leader><space>", function() Snacks.picker.smart() end, { desc = "Smart Find Files" })
-keymap("n", "<leader>,", function() Snacks.picker.buffers() end, { desc = "Buffers" })
-keymap("n", "<leader>/", function() Snacks.picker.grep() end, { desc = "Grep" })
-keymap("n", "<leader>:", function() Snacks.picker.command_history() end, { desc = "Command History" })
-keymap("n", "<leader>n", function() Snacks.picker.notifications() end, { desc = "Notification History" })
-keymap("n", "<leader>sb", function() Snacks.picker.buffers() end, { desc = "Buffers" })
-keymap(
-    "n",
-    "<leader>sc",
-    function() Snacks.picker.files({ cwd = vim.fn.stdpath("config") }) end,
-    { desc = "Find Config File" }
-)
-keymap("n", "<leader>sf", function() Snacks.picker.files() end, { desc = "Find Files" })
-keymap("n", "<leader>so", function() Snacks.picker.recent() end, { desc = "Recent" })
-keymap("n", "<leader>gsb", function() Snacks.picker.git_branches() end, { desc = "Git Branches" })
-keymap("n", "<leader>gsl", function() Snacks.picker.git_log() end, { desc = "Git Log" })
-keymap("n", "<leader>gsL", function() Snacks.picker.git_log_line() end, { desc = "Git Log Line" })
-keymap("n", "<leader>gst", function() Snacks.picker.git_status() end, { desc = "Git Status" })
-keymap("n", "<leader>gss", function() Snacks.picker.git_stash() end, { desc = "Git Stash" })
-keymap("n", "<leader>gd", function() Snacks.picker.git_diff() end, { desc = "Git Diff (Hunks)" })
-keymap("n", "<leader>sB", function() Snacks.picker.grep_buffers() end, { desc = "Grep Open Buffers" })
-keymap("n", "<leader>sg", function() Snacks.picker.grep() end, { desc = "Grep" })
-keymap("v", "<leader>sw", function() Snacks.picker.grep_word() end, { desc = "Visual selection or word" })
-keymap("n", "<leader>s/", function() Snacks.picker.search_history() end, { desc = "Search History" })
-keymap("n", "<leader>sa", function() Snacks.picker.autocmds() end, { desc = "Autocmds" })
-keymap("n", "<leader>sc", function() Snacks.picker.command_history() end, { desc = "Command History" })
-keymap("n", "<leader>sd", function() Snacks.picker.diagnostics() end, { desc = "Diagnostics" })
-keymap("n", "<leader>sD", function() Snacks.picker.diagnostics_buffer() end, { desc = "Buffer Diagnostics" })
-keymap("n", "<leader>sh", function() Snacks.picker.help() end, { desc = "Help Pages" })
-keymap("n", "<leader>sH", function() Snacks.picker.highlights() end, { desc = "Highlights" })
-keymap("n", "<leader>sj", function() Snacks.picker.jumps() end, { desc = "Jumps" })
-keymap("n", "<leader>sk", function() Snacks.picker.keymaps() end, { desc = "Keymaps" })
-keymap("n", "<leader>sl", function() Snacks.picker.loclist() end, { desc = "Location List" })
-keymap("n", "<leader>sR", function() Snacks.picker.resume() end, { desc = "Resume" })
-keymap("n", "<leader>su", function() Snacks.picker.undo() end, { desc = "Undo History" })
-keymap("n", "<leader>uC", function() Snacks.picker.colorschemes() end, { desc = "Colorschemes" })
-keymap("n", "gd", function() Snacks.picker.lsp_definitions() end, { desc = "Goto Definition" })
-keymap("n", "gD", function() Snacks.picker.lsp_declarations() end, { desc = "Goto Declaration" })
-keymap("n", "gr", function() Snacks.picker.lsp_references() end, { nowait = true, desc = "References" })
-keymap("n", "gI", function() Snacks.picker.lsp_implementations() end, { desc = "Goto Implementation" })
-keymap("n", "gt", function() Snacks.picker.lsp_type_definitions() end, { desc = "Goto T[y]pe Definition" })
-keymap("n", "<leader>ss", function() Snacks.picker.lsp_symbols() end, { desc = "LSP Symbols" })
-keymap("n", "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, { desc = "LSP Workspace Symbols" })
-keymap("n", "<leader>ss", function() Snacks.picker.lsp_symbols() end, { desc = "LSP Symbols" })
-keymap("n", "<leader>sS", function() Snacks.picker.lsp_workspace_symbols() end, { desc = "LSP Workspace Symbols" })
+-- search
+keymap("n", "<leader>cs", [[<cmd>Pick spellsuggest<cr>]], { desc = "Spelling" })
+keymap("n", "<leader>sb", [[<cmd>Pick buffers<cr>]], { desc = "Buffers" })
+keymap("n", "<leader>sf", [[<cmd>Pick files<cr>]], { desc = "Find Files" })
+keymap("n", "<leader>sg", [[<cmd>Pick grep_live<cr>]], { desc = "Grep" })
+keymap("n", "<leader>sh", [[<cmd>Pick help<cr>]], { desc = "Help Pages" })
+keymap("n", "<leader>sH", [[<cmd>Pick hl_groups<cr>]], { desc = "Highlight groups" })
+keymap("n", "<leader>sk", [[<cmd>Pick keymaps<cr>]], { desc = "Keymaps" })
+keymap("n", "<leader>sr", [[<cmd>Pick resume<cr>]], { desc = "Resume" })
+keymap("n", "<leader>so", [[<cmd>Pick visit_paths<cr>]], { desc = "Recent" })
+
+local function goto_marked_file(index)
+    local marked = MiniVisits.list_paths(nil, {
+        filter = "core",
+        sort = function(paths) return paths end,
+    })
+    if marked[index] then vim.cmd("edit " .. marked[index]) end
+end
+
+keymap("n", "<leader>sm", [[<cmd>Pick visit_paths filter='core'<cr>]], { desc = "Marked files" })
+keymap("n", "<leader>ma", [[<cmd>lua MiniVisits.add_label("core")<CR>]], { desc = "Add mark" })
+keymap("n", "<leader>md", [[<cmd>lua MiniVisits.remove_label("core")<CR>]], { desc = "Delete mark" })
+keymap("n", "mq", function() goto_marked_file(1) end, { desc = "Goto mark 1" })
+keymap("n", "mw", function() goto_marked_file(2) end, { desc = "Goto mark 2" })
+keymap("n", "me", function() goto_marked_file(3) end, { desc = "Goto mark 3" })
+keymap("n", "mr", function() goto_marked_file(4) end, { desc = "Goto mark 4" })
 
 -- undotree
 keymap("n", "<leader>U", vim.cmd.UndotreeToggle, { desc = "Toggle undotree" })
 
--- grug
-keymap({ "n", "v" }, "<leader>sr", function()
-    local ext = vim.bo.buftype == "" and vim.fn.expand("%:e")
-    require("grug-far").open({
-        transient = true,
-        prefills = {
-            filesFilter = ext and ext ~= "" and "*." .. ext or nil,
+--php
+keymap("n", "<leader>la", ":Laravel artisan<cr>", { desc = "Laravel artisan" })
+keymap("n", "<leader>lsr", ":Laravel routes<cr>", { desc = "Laravel routes" })
+keymap("n", "<leader>lsm", ":Laravel related<cr>", { desc = "Laravel related" })
+
+local function get_color(v)
+    local color = {}
+    for _, c in ipairs({ "fg", "bg" }) do
+        if v[c] then
+            local name = v[c]
+            local hl = vim.api.nvim_get_hl(0, { name = name, link = false })
+            local hl_color
+            if c == "fg" then
+                hl_color = hl and hl.fg
+            else
+                hl_color = hl and hl.bg
+            end
+            if hl_color then table.insert(color, string.format("#%06x", hl_color)) end
+        end
+    end
+    if v.bold then table.insert(color, "bold") end
+    return color
+end
+
+local function create_config()
+    local theme = {
+        [241] = { fg = "Special" },
+        activeBorderColor = { fg = "MatchParen", bold = true },
+        cherryPickedCommitBgColor = { fg = "Identifier" },
+        cherryPickedCommitFgColor = { fg = "Function" },
+        defaultFgColor = { fg = "Normal" },
+        inactiveBorderColor = { fg = "FloatBorder" },
+        optionsTextColor = { fg = "Function" },
+        searchingActiveBorderColor = { fg = "MatchParen", bold = true },
+        selectedLineBgColor = { bg = "Visual" },
+        unstagedChangesColor = { fg = "DiagnosticError" },
+    }
+
+    local theme_colors = {}
+    for k, v in pairs(theme) do
+        if type(k) == "number" then
+            local color = get_color(v)
+            pcall(io.write, ("\27]4;%d;%s\7"):format(k, color[1]))
+        else
+            theme_colors[k] = get_color(v)
+        end
+    end
+
+    local config = {
+        gui = {
+            theme = theme_colors,
+            nerdFontsVersion = "3",
         },
+        os = {
+            editPreset = "nvim-remote",
+        },
+    }
+
+    local function yaml_val(val)
+        if type(val) == "boolean" then return tostring(val) end
+        return type(val) == "string" and not val:find("^\"'`") and ("%q"):format(val) or val
+    end
+
+    local function to_yaml(tbl, indent)
+        indent = indent or 0
+        local lines = {}
+        for k, v in pairs(tbl) do
+            table.insert(lines, string.rep(" ", indent) .. k .. (type(v) == "table" and ":" or ": " .. yaml_val(v)))
+            if type(v) == "table" then
+                if vim.islist(v) then
+                    for _, item in ipairs(v) do
+                        table.insert(lines, string.rep(" ", indent + 2) .. "- " .. yaml_val(item))
+                    end
+                else
+                    vim.list_extend(lines, to_yaml(v, indent + 2))
+                end
+            end
+        end
+        return lines
+    end
+
+    local theme_path = vim.fn.stdpath("cache") .. "/lazygit-theme.yml"
+    vim.fn.writefile(to_yaml(config), theme_path)
+    return theme_path
+end
+
+local function lazygit()
+    if vim.fn.executable("lazygit") ~= 1 then
+        vim.notify("LazyGit is not installed", vim.log.levels.ERROR)
+        return
+    end
+
+    local theme_path = create_config()
+    local out = vim.fn.system({ "lazygit", "-cd" })
+    local config_dir = vim.split(vim.split(out, "\n", { plain = true })[1], "\n", { plain = true })[1]
+
+    local config_files = vim.tbl_filter(
+        function(v) return v:match("%S") end,
+        vim.split(vim.env.LG_CONFIG_FILE or "", ",", { plain = true })
+    )
+
+    if #config_files == 0 then config_files[1] = config_dir .. "/config.yml" end
+    if not vim.tbl_contains(config_files, theme_path) then table.insert(config_files, theme_path) end
+    vim.env.LG_CONFIG_FILE = table.concat(config_files, ",")
+
+    local buf = vim.api.nvim_create_buf(false, true)
+    local width = math.floor(vim.o.columns * 0.9)
+    local height = math.floor(vim.o.lines * 0.9)
+    local win = vim.api.nvim_open_win(buf, true, {
+        relative = "editor",
+        width = width,
+        height = height,
+        row = math.floor((vim.o.lines - height) / 2),
+        col = math.floor((vim.o.columns - width) / 2),
+        style = "minimal",
+        border = "rounded",
     })
-end, { desc = "Search and Replace" })
+    vim.api.nvim_set_option_value(
+        "winhighlight",
+        "Normal:Normal,FloatBorder:FloatBorder",
+        { scope = "local", win = win }
+    )
+
+    vim.fn.termopen("lazygit", {
+        on_exit = function() vim.api.nvim_win_close(win, true) end,
+    })
+    vim.cmd("startinsert")
+end
+
+-- git
+keymap("n", "<leader>gg", lazygit, { desc = "LazyGit" })
+keymap("n", "<leader>ghp", "<cmd>Gitsigns preview_hunk<cr>", { desc = "Preview hunk" })
+keymap("n", "<leader>ghi", "<cmd>Gitsigns preview_hunk_inline<cr>", { desc = "Preview hunk inline" })
+keymap("n", "<leader>gb", "<cmd>Gitsigns blame<cr>", { desc = "Blame" })
+keymap("n", "]h", [[<cmd>Gitsigns next_hunk<cr>]], { desc = "Next hunk" })
+keymap("n", "[h", [[<cmd>Gitsigns prev_hunk<cr>]], { desc = "Prev hunk" })

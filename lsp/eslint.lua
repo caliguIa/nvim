@@ -1,31 +1,39 @@
+local root_patterns = {
+    ".eslintrc.json",
+    ".eslintrc",
+    ".eslintrc.js",
+    ".eslintrc.cjs",
+    ".eslintrc.yaml",
+    ".eslintrc.yml",
+    "eslint.config.js",
+    "eslint.config.mjs",
+    "eslint.config.cjs",
+    "eslint.config.ts",
+    "eslint.config.mts",
+    "eslint.config.cts",
+}
+
+local function get_project_root()
+    local current_file = vim.fn.expand("%:p")
+    local root = vim.fs.find(root_patterns, {
+        path = current_file,
+        upward = true,
+    })[1]
+
+    return root and vim.fs.dirname(root) or vim.fn.getcwd()
+end
+
+---@type vim.lsp.Config
 return {
     cmd = { "vscode-eslint-language-server", "--stdio" },
-    root_dir = function(cb)
-        local bufname = vim.api.nvim_buf_get_name(0)
-        local path = vim.fs.dirname(bufname)
-
-        while path do
-            local eslint_path = path .. "/.eslintrc.json"
-            if vim.loop.fs_stat(eslint_path) then
-                cb(path)
-                return
-            end
-
-            local parent = vim.fs.dirname(path)
-            if parent == path then break end
-            path = parent
-        end
-
-        cb(vim.fs.dirname(bufname))
-    end,
     filetypes = {
         "javascript",
         "javascriptreact",
-        "javascript.jsx",
         "typescript",
         "typescriptreact",
-        "typescript.tsx",
+        "html",
     },
+    root_markers = root_patterns,
     init_options = {
         provideFormatter = true,
     },
@@ -45,57 +53,37 @@ return {
         onIgnoredFiles = "off",
         rulesCustomizations = {},
         run = "onType",
+        options = {
+            parserOptions = {
+                project = get_project_root() .. "/tsconfig.json",
+            },
+        },
         problems = {
             shortenToSingleLine = false,
         },
         nodePath = "",
-        workingDirectory = { mode = "location" },
+        workingDirectory = { mode = "auto" },
+        codeAction = {
+            disableRuleComment = {
+                enable = true,
+                location = "separateLine",
+            },
+            showDocumentation = {
+                enable = true,
+            },
+        },
     },
-    before_init = function(initialize_params, config)
-        local root_dir = config.root_dir
-        initialize_params.workspaceFolders = {
-            {
-                uri = vim.uri_from_fname(root_dir),
-                name = vim.fs.basename(root_dir),
-            },
-        }
-        initialize_params.capabilities = vim.tbl_deep_extend("force", initialize_params.capabilities or {}, {
-            workspace = {
-                configuration = true,
-            },
-        })
-    end,
     on_new_config = function(config, new_root_dir)
-        -- Set workspace folder
         config.settings.workspaceFolder = {
             uri = new_root_dir,
             name = vim.fs.basename(new_root_dir),
         }
-
-        -- Set parser options
-        config.settings.typescript = {
-            tsconfigRootDir = new_root_dir,
-            tsserver = {
-                path = new_root_dir .. "/tsconfig.json",
-            },
-        }
-
-        -- Set working directory
-        config.settings.workingDirectory = {
-            mode = "location",
-            directory = new_root_dir,
-        }
-
-        -- Set node path
-        config.settings.nodePath = new_root_dir .. "/node_modules"
-
-        -- Set parser options
-        config.settings.parserOptions = {
-            tsconfigRootDir = new_root_dir,
-            project = new_root_dir .. "/tsconfig.json",
-        }
     end,
     handlers = {
+        ["eslint/openDoc"] = function(_, result)
+            if result then vim.ui.open(result.url) end
+            return {}
+        end,
         ["eslint/confirmESLintExecution"] = function(_, result)
             if not result then return end
             return 4 -- approved
@@ -107,9 +95,6 @@ return {
         ["eslint/noLibrary"] = function()
             vim.notify("[lspconfig] Unable to find ESLint library.", vim.log.levels.WARN)
             return {}
-        end,
-        ["textDocument/publishDiagnostics"] = function(err, result, ctx, config)
-            vim.lsp.handlers["textDocument/publishDiagnostics"](err, result, ctx, config)
         end,
     },
 }

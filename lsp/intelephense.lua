@@ -1,7 +1,8 @@
 return {
     cmd = { "intelephense", "--stdio" },
     filetypes = { "php", "blade", "php_only" },
-    root_dir = find_root_pattern({ "composer.json" }),
+    -- root_dir = find_root_pattern({ "composer.json" }),
+    root_markers = { "composer.json" },
     init_options = {
         storagePath = "/tmp/intelephense",
         globalStoragePath = os.getenv("HOME") .. "/.cache/intelephense",
@@ -19,5 +20,7 @@ return {
                 maxSize = 5000000,
             },
         },
+        php = { completion = { callSnippet = "Replace" } },
     },
+    on_attach = function(client) client.server_capabilities.workspaceSymbolProvider = false end,
 }

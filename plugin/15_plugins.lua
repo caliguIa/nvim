@@ -6,111 +6,45 @@ later(function()
     require("flash").setup()
 end)
 later(function()
-    add("folke/snacks.nvim")
-    require("snacks").setup({
-        bigfile = { enabled = true },
-        indent = { enabled = true },
-        picker = {
-            enabled = true,
-            cwd_bonus = true, -- give bonus for matching files in the cwd
-            frecency = true, -- frecency bonus
-            history_bonus = true, -- give more weight to chronological order
-            layout = {
-                preset = "ivy",
-                border = "none",
-            },
-            sources = {
-                buffers = { layout = "select" },
-            },
+    add("catgoose/nvim-colorizer.lua")
+    require("colorizer").setup({
+        user_default_options = {
+            names = false,
+            sass = { enable = true, parsers = { "css" } },
+            mode = "virtualtext",
+            virtualtext_inline = true,
         },
     })
 end)
 later(function()
-    add("stevearc/oil.nvim")
-    function _G.get_oil_winbar()
-        local bufnr = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
-        local dir = require("oil").get_current_dir(bufnr)
-        if dir then
-            return vim.fn.fnamemodify(dir, ":~")
-        else
-            -- If there is no current directory (e.g. over ssh), just show the buffer name
-            return vim.api.nvim_buf_get_name(0)
-        end
-    end
-    require("oil").setup({
-        lsp_file_methods = { autosave_changes = true },
-        view_options = { show_hidden = true },
-        keymaps = { ["q"] = "actions.close" },
-        watch_for_changes = false,
-        win_options = {
-            winbar = "%!v:lua.get_oil_winbar()",
-        },
+    add("lukas-reineke/indent-blankline.nvim")
+    require("ibl").setup({
+        indent = { char = "│" },
+        scope = { enabled = false },
     })
 end)
-later(function()
-    add("MagicDuck/grug-far.nvim")
-    require("grug-far").setup()
-end)
+
 later(function() add("mbbill/undotree") end)
 ---------------------
 
 -- Git
 later(function()
-    add({ source = "akinsho/git-conflict.nvim", checkout = "v2.1.0" })
-    require("git-conflict").setup()
+    add("sindrets/diffview.nvim")
+    require("diffview").setup()
 end)
 later(function()
-    add("FabijanZulj/blame.nvim")
-    require("blame").setup()
-end)
-later(function()
-    add({
-        source = "NeogitOrg/neogit",
-        depends = {
-            "nvim-lua/plenary.nvim",
-        },
-    })
-    require("neogit").setup({
-        disable_insert_on_commit = "auto",
-        integrations = {
-            diffview = false,
-            fzf_lua = false,
-        },
-        initial_branch_name = "DREAD-",
+    add("lewis6991/gitsigns.nvim")
+    local gitsigns = require("gitsigns")
+    gitsigns.setup({
+        signs_staged_enable = false,
+        signcolumn = false,
+        numhl = true,
     })
 end)
----------------------
-
--- UI
--- later(function()
---     add({
---         source = "MeanderingProgrammer/render-markdown.nvim",
---         depends = { "nvim-treesitter/nvim-treesitter", "echasnovski/mini.nvim" },
---     })
---     require("render-markdown").setup()
--- end)
 later(function()
-    add({ source = "catppuccin/nvim", name = "catppuccin" })
-    require("catppuccin").setup({
-        integrations = {
-            markdown = true,
-            mini = true,
-            native_lsp = {
-                enabled = true,
-                underlines = {
-                    errors = { "undercurl" },
-                    hints = { "undercurl" },
-                    warnings = { "undercurl" },
-                    information = { "undercurl" },
-                },
-            },
-            neotest = true,
-            treesitter = true,
-            treesitter_context = true,
-        },
-    })
-
-    vim.cmd.colorscheme("catppuccin-mocha")
+    add({ source = "ldelossa/gh.nvim", depends = { "ldelossa/litee.nvim" } })
+    require("litee.lib").setup()
+    require("litee.gh").setup()
 end)
 ---------------------
 
@@ -125,15 +59,14 @@ later(function()
             timeout_ms = 3000,
             async = false,
             quiet = false,
-            -- lsp_format = "fallback",
         },
         formatters_by_ft = {
             lua = { "stylua" },
             php = { "pint" },
-            typescript = { "deno_fmt", "eslint_d", "prettier" },
-            typescriptreact = { "deno_fmt", "eslint_d", "prettier" },
-            javascript = { "deno_fmt", "eslint_d", "prettier" },
-            javascriptreact = { "deno_fmt", "eslint_d", "prettier" },
+            typescript = { "deno_fmt", "prettier" },
+            typescriptreact = { "deno_fmt", "prettier" },
+            javascript = { "deno_fmt", "prettier" },
+            javascriptreact = { "deno_fmt", "prettier" },
             css = { "prettier" },
             html = { "prettier" },
             json = { "prettier" },
@@ -173,10 +106,7 @@ later(function()
         checkout = "master",
         monitor = "main",
         hooks = { post_checkout = function() vim.cmd("TSUpdate") end },
-        depends = {
-            "windwp/nvim-ts-autotag",
-            "nvim-treesitter/nvim-treesitter-context",
-        },
+        depends = { "windwp/nvim-ts-autotag" },
     })
     add("folke/ts-comments.nvim")
     require("nvim-treesitter.configs").setup({
@@ -185,24 +115,16 @@ later(function()
             "bash", "c", "cpp", "css", "csv", "diff", "elixir", "git_config", "git_rebase",
             "gitcommit", "gitignore", "gleam", "go", "html", "http", "javascript", "jsdoc",
             "json", "jsonc","json", "jq", "lua", "luadoc", "luap", "make", "markdown",
-            "markdown_inline", "nix", "nu", "ocaml", "php", "printf", "python", "query",
+            "markdown_inline", "nix", "nu", "ocaml", "php", "php_only", "phpdoc", "printf", "python", "query",
             "regex", "rst", "rust", "sql", "ssh_config", "terraform", "toml", "tsx",
             "typescript", "vim", "vimdoc", "yaml", "zig",
         },
         incremental_selection = { enable = false },
         textobjects = { enable = false },
-        indent = { enable = false },
-        highlight = {
-            enable = true,
-            disable = function(_, buf)
-                local max_filesize = 240 * 1024
-                local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(buf))
-                if ok and stats and stats.size > max_filesize then return true end
-            end,
-        },
+        indent = { enable = true },
+        highlight = { enable = true },
     })
     require("ts-comments").setup()
-    require("treesitter-context").setup({ mode = "cursor", max_lines = 3 })
     require("nvim-ts-autotag").setup()
 end)
 later(function()
@@ -229,27 +151,15 @@ later(function()
     })
     local opts = {
         completion = {
-            accept = {
-                auto_brackets = {
-                    enabled = true,
-                },
-            },
-            menu = {
-                draw = {
-                    treesitter = { "lsp" },
-                },
-            },
+            accept = { auto_brackets = { enabled = true } },
+            menu = { draw = { treesitter = { "lsp" } } },
+            ghost_text = { enabled = false },
             documentation = {
                 auto_show = true,
                 auto_show_delay_ms = 200,
             },
-            ghost_text = {
-                enabled = false,
-            },
         },
-        cmdline = {
-            enabled = false,
-        },
+        cmdline = { enabled = false },
         sources = {
             compat = {},
             default = { "lsp", "path", "snippets", "buffer", "copilot" },
@@ -260,55 +170,12 @@ later(function()
                     kind = "Copilot",
                     score_offset = 100,
                     async = true,
-                    transform_items = function(_, items)
-                        local CompletionItemKind = require("blink.cmp.types").CompletionItemKind
-                        local kind_idx = #CompletionItemKind + 1
-                        CompletionItemKind[kind_idx] = "Copilot"
-                        for _, item in ipairs(items) do
-                            item.kind = kind_idx
-                        end
-                        return items
-                    end,
                 },
             },
         },
         appearance = {
             use_nvim_cmp_as_default = false,
             nerd_font_variant = "mono",
-            -- Blink does not expose its default kind icons so you must copy them all (or set your custom ones) and add Copilot
-            kind_icons = {
-                Copilot = "",
-                Text = "󰉿",
-                Method = "󰊕",
-                Function = "󰊕",
-                Constructor = "󰒓",
-
-                Field = "󰜢",
-                Variable = "󰆦",
-                Property = "󰖷",
-
-                Class = "󱡠",
-                Interface = "󱡠",
-                Struct = "󱡠",
-                Module = "󰅩",
-
-                Unit = "󰪚",
-                Value = "󰦨",
-                Enum = "󰦨",
-                EnumMember = "󰦨",
-
-                Keyword = "󰻾",
-                Constant = "󰏿",
-
-                Snippet = "󱄽",
-                Color = "󰏘",
-                File = "󰈔",
-                Reference = "󰬲",
-                Folder = "󰉋",
-                Event = "󱐋",
-                Operator = "󰪚",
-                TypeParameter = "󰬛",
-            },
         },
         keymap = {
             preset = "default",
@@ -343,19 +210,8 @@ later(function()
 
     require("blink.cmp").setup(opts)
 end)
-later(function()
-    add("mfussenegger/nvim-lint")
-    vim.env.ESLINT_D_PPID = vim.fn.getpid()
-    require("lint").linters_by_ft = {
-        javascript = { "eslint_d" },
-        javascriptreact = { "eslint_d" },
-        ["javascript.jsx"] = { "eslint_d" },
-        typescript = { "eslint_d" },
-        typescriptreact = { "eslint_d" },
-        ["typescript.tsx"] = { "eslint_d" },
-        rust = { "clippy" },
-    }
-end)
+
+later(function() add("ku1ik/vim-pasta") end)
 ---------------------
 
 --- AI
@@ -435,6 +291,41 @@ later(function()
     end
 
     require("neotest").setup(opts)
+end)
+
+later(function()
+    add({
+        source = "adalessa/laravel.nvim",
+        depends = {
+            "kevinhwang91/promise-async",
+            "tpope/vim-dotenv",
+            "MunifTanjim/nui.nvim",
+        },
+    })
+    require("laravel").setup({
+        lsp_server = "intelephense",
+        features = {
+            route_info = { enable = true, position = "right" },
+            override = { enable = true },
+            pickers = { enable = true, provider = "ui.select" },
+        },
+    })
+    local app = require("laravel").app
+    local route_info_view = {}
+    function route_info_view:get(route)
+        return {
+            virt_text = {
+                { "[", "comment" },
+                { "Method: ", "comment" },
+                { table.concat(route.methods, "|"), "@enum" },
+                { " Uri: ", "comment" },
+                { route.uri, "@enum" },
+                { "]", "comment" },
+            },
+        }
+    end
+
+    app:instance("route_info_view", route_info_view)
 end)
 ---------------------
 
