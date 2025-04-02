@@ -39,14 +39,6 @@ vim.o.splitright = true -- Vertical splits will be to the right
 vim.o.termguicolors = true -- Enable gui colors
 vim.o.winblend = 0 -- Make floating windows fully opaque
 vim.o.wrap = false -- Display long lines as just one line
-vim.o.fillchars = table.concat({
-    "foldopen:",
-    "foldclose:",
-    "fold: ",
-    "foldsep: ",
-    "diff:╱",
-    "eob: ",
-}, ",")
 vim.o.listchars = table.concat({ "extends:…", "nbsp:␣", "precedes:…", "tab:> " }, ",")
 vim.o.cursorlineopt = "screenline,number" -- Show cursor line only screen line when wrapped
 vim.o.breakindentopt = "list:-1" -- Add padding for lists when 'wrap' is on
@@ -80,6 +72,16 @@ vim.o.foldenable = true -- enable fold
 vim.o.foldlevel = 99 -- start editing with all folds opened
 vim.o.foldmethod = "expr" -- use tree-sitter for folding method
 vim.o.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.o.foldtext = ""
+vim.opt.foldcolumn = "0"
+vim.opt.fillchars:append({
+    fold = " ",
+    foldopen = "",
+    foldclose = "",
+    foldsep = " ",
+    diff = "╱",
+    eob = " ",
+})
 
 vim.o.completeopt = "menu,menuone,popup,fuzzy" -- modern completion menu
 
