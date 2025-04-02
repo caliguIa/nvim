@@ -1,6 +1,5 @@
 local add, later = MiniDeps.add, MiniDeps.later
 
--- Editor -----------
 later(function()
     add("folke/flash.nvim")
     require("flash").setup()
@@ -25,9 +24,6 @@ later(function()
 end)
 
 later(function() add("mbbill/undotree") end)
----------------------
-
--- Git
 later(function()
     add("sindrets/diffview.nvim")
     require("diffview").setup()
@@ -41,14 +37,6 @@ later(function()
         numhl = true,
     })
 end)
-later(function()
-    add({ source = "ldelossa/gh.nvim", depends = { "ldelossa/litee.nvim" } })
-    require("litee.lib").setup()
-    require("litee.gh").setup()
-end)
----------------------
-
--- Lang
 later(function()
     add("stevearc/conform.nvim")
     local util = require("conform.util")
@@ -106,9 +94,8 @@ later(function()
         checkout = "master",
         monitor = "main",
         hooks = { post_checkout = function() vim.cmd("TSUpdate") end },
-        depends = { "windwp/nvim-ts-autotag" },
+        depends = { "windwp/nvim-ts-autotag", "folke/ts-comments.nvim" },
     })
-    add("folke/ts-comments.nvim")
     require("nvim-treesitter.configs").setup({
         --stylua: ignore
         ensure_installed = {
@@ -125,119 +112,37 @@ later(function()
         highlight = { enable = true },
     })
     require("ts-comments").setup()
-    require("nvim-ts-autotag").setup()
+    require("nvim-ts-autotag").setup({ enable_close_on_slash = false })
 end)
 later(function()
-    local build_blink = function(params)
-        vim.notify("Building blink.cmp", vim.log.levels.INFO)
-        local obj = vim.system({ "nix", "run", ".#build-plugin" }, { cwd = params.path }):wait()
-        if obj.code == 0 then
-            vim.notify("Building blink.cmp done", vim.log.levels.INFO)
-        else
-            vim.notify("Building blink.cmp failed", vim.log.levels.ERROR)
-        end
-    end
     add({
         source = "saghen/blink.cmp",
-        hooks = {
-            post_install = build_blink,
-            post_checkout = build_blink,
-        },
+        checkout = "v1.0.0",
+        monitor = "main",
         depends = {
             "rafamadriz/friendly-snippets",
             "saghen/blink.compat",
+            "zbirenbaum/copilot.lua",
             "giuxtaposition/blink-cmp-copilot",
         },
     })
-    local opts = {
-        completion = {
-            accept = { auto_brackets = { enabled = true } },
-            menu = { draw = { treesitter = { "lsp" } } },
-            ghost_text = { enabled = false },
-            documentation = {
-                auto_show = true,
-                auto_show_delay_ms = 200,
-            },
-        },
-        cmdline = { enabled = false },
-        sources = {
-            compat = {},
-            default = { "lsp", "path", "snippets", "buffer", "copilot" },
-            providers = {
-                copilot = {
-                    name = "copilot",
-                    module = "blink-cmp-copilot",
-                    kind = "Copilot",
-                    score_offset = 100,
-                    async = true,
-                },
-            },
-        },
-        appearance = {
-            use_nvim_cmp_as_default = false,
-            nerd_font_variant = "mono",
-        },
-        keymap = {
-            preset = "default",
-            ["<C-y>"] = { "select_and_accept" },
-        },
-    }
-
-    -- Unset custom prop to pass blink.cmp validation
-    opts.sources.compat = nil
-
-    -- Process source providers
-    for _, provider in pairs(opts.sources.providers or {}) do
-        if provider.kind then
-            local CompletionItemKind = require("blink.cmp.types").CompletionItemKind
-            local kind_idx = #CompletionItemKind + 1
-
-            CompletionItemKind[kind_idx] = provider.kind
-            CompletionItemKind[provider.kind] = kind_idx
-
-            local transform_items = provider.transform_items
-            provider.transform_items = function(ctx, items)
-                items = transform_items and transform_items(ctx, items) or items
-                for _, item in ipairs(items) do
-                    item.kind = kind_idx or item.kind
-                end
-                return items
-            end
-
-            provider.kind = nil
-        end
-    end
-
-    require("blink.cmp").setup(opts)
-end)
-
-later(function() add("ku1ik/vim-pasta") end)
----------------------
-
---- AI
-later(function()
-    add("zbirenbaum/copilot.lua")
     require("copilot").setup({
         suggestion = {
             enabled = false,
             auto_trigger = true,
-            keymap = {
-                accept = false,
-                next = "<M-]>",
-                prev = "<M-[>",
-            },
+            keymap = { accept = false },
         },
         panel = { enabled = false },
-        filetypes = {
-            markdown = true,
-            help = true,
+    })
+    require("blink.cmp").setup({
+        completion = { documentation = { auto_show = true } },
+        sources = {
+            default = { "lsp", "copilot", "path", "snippets", "buffer" },
+            providers = { copilot = { name = "copilot", module = "blink-cmp-copilot", async = true } },
         },
     })
 end)
-
---------------------
-
--- Test
+later(function() add("ku1ik/vim-pasta") end)
 later(function()
     add({
         source = "nvim-neotest/neotest",
@@ -250,49 +155,19 @@ later(function()
             "marilari88/neotest-vitest",
         },
     })
-    local opts = {
+    require("neotest").setup({
         adapters = {
-            ["neotest-phpunit"] = {},
-            ["neotest-vitest"] = {
+            require("neotest-phpunit"),
+            require("neotest-vitest")({
                 cwd = function(file)
                     local util = require("neotest-vitest.util")
                     return util.find_node_modules_ancestor(file)
                 end,
-            },
+            }),
         },
         output = { open_on_run = true },
-    }
-
-    if opts.adapters then
-        local adapters = {}
-        for name, config in pairs(opts.adapters or {}) do
-            if type(name) == "number" then
-                if type(config) == "string" then config = require(config) end
-                adapters[#adapters + 1] = config
-            elseif config ~= false then
-                local adapter = require(name)
-                if type(config) == "table" and not vim.tbl_isempty(config) then
-                    local meta = getmetatable(adapter)
-                    if adapter.setup then
-                        adapter.setup(config)
-                    elseif adapter.adapter then
-                        adapter.adapter(config)
-                        adapter = adapter.adapter
-                    elseif meta and meta.__call then
-                        adapter = adapter(config)
-                    else
-                        error("Adapter " .. name .. " does not support setup")
-                    end
-                end
-                adapters[#adapters + 1] = adapter
-            end
-        end
-        opts.adapters = adapters
-    end
-
-    require("neotest").setup(opts)
+    })
 end)
-
 later(function()
     add({
         source = "adalessa/laravel.nvim",
@@ -327,7 +202,6 @@ later(function()
 
     app:instance("route_info_view", route_info_view)
 end)
----------------------
 
 -- Local
 later(function()
