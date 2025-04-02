@@ -202,6 +202,7 @@ later(function()
 
     app:instance("route_info_view", route_info_view)
 end)
+later(function() add("christoomey/vim-tmux-navigator") end)
 
 -- Local
 later(function()

@@ -165,3 +165,9 @@ keymap("n", "<leader>ghi", "<cmd>Gitsigns preview_hunk_inline<cr>", { desc = "Pr
 keymap("n", "<leader>gb", "<cmd>Gitsigns blame<cr>", { desc = "Blame" })
 keymap("n", "]h", [[<cmd>Gitsigns next_hunk<cr>]], { desc = "Next hunk" })
 keymap("n", "[h", [[<cmd>Gitsigns prev_hunk<cr>]], { desc = "Prev hunk" })
+
+-- tmux
+keymap("n", "<M-h>", "<cmd>TmuxNavigateLeft<cr>", { desc = "Tmux Navigate Left" })
+keymap("n", "<M-j>", "<cmd>TmuxNavigateDown<cr>", { desc = "Tmux Navigate Down" })
+keymap("n", "<M-k>", "<cmd>TmuxNavigateUp<cr>", { desc = "Tmux Navigate Up" })
+keymap("n", "<M-l>", "<cmd>TmuxNavigateRight<cr>", { desc = "Tmux Navigate Right" })
