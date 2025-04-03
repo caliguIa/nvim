@@ -63,6 +63,8 @@ later(function()
             nix = { "nixfmt" },
             rust = { "rustfmt" },
             scss = { "prettier" },
+            sql = { "sleek" },
+            mysql = { "sleek" },
             vue = { "prettier" },
             yaml = { "prettier" },
         },
@@ -135,6 +137,7 @@ later(function()
             "saghen/blink.compat",
             "zbirenbaum/copilot.lua",
             "giuxtaposition/blink-cmp-copilot",
+            "kristijanhusak/vim-dadbod-completion",
         },
     })
     require("copilot").setup({
@@ -149,7 +152,14 @@ later(function()
         completion = { documentation = { auto_show = true } },
         sources = {
             default = { "lsp", "copilot", "path", "snippets", "buffer" },
-            providers = { copilot = { name = "copilot", module = "blink-cmp-copilot", async = true } },
+            per_filetype = {
+                sql = { "snippets", "dadbod", "buffer" },
+                mysql = { "snippets", "dadbod", "buffer" },
+            },
+            providers = {
+                copilot = { name = "copilot", module = "blink-cmp-copilot", async = true },
+                dadbod = { name = "Dadbod", module = "vim_dadbod_completion.blink" },
+            },
         },
     })
 end)
@@ -215,7 +225,10 @@ later(function()
 end)
 later(function() add("christoomey/vim-tmux-navigator") end)
 later(function()
-    add({ source = "kristijanhusak/vim-dadbod-ui", depends = { "tpope/vim-dadbod" } })
+    add({
+        source = "kristijanhusak/vim-dadbod-ui",
+        depends = { "tpope/vim-dadbod", "kristijanhusak/vim-dadbod-completion" },
+    })
     local base = vim.fs.joinpath(os.getenv("HOME"), "tmp", "queries")
     vim.g.db_ui_use_nerd_fonts = 1
     vim.g.db_ui_winwidth = 40

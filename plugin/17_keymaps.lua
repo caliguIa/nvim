@@ -159,6 +159,8 @@ Util.keymap("n", "mr", function() goto_marked_file(4) end, { desc = "Goto mark 4
 -- undotree
 Util.keymap("n", "<leader>U", vim.cmd.UndotreeToggle, { desc = "Toggle undotree" })
 
+Util.keymap("n", "<leader>D", vim.cmd.DBUI, { desc = "Database" })
+
 --php
 Util.keymap("n", "<leader>la", ":Laravel artisan<cr>", { desc = "Laravel artisan" })
 Util.keymap("n", "<leader>lsr", ":Laravel routes<cr>", { desc = "Laravel routes" })
