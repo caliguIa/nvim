@@ -115,10 +115,21 @@ later(function()
     require("nvim-ts-autotag").setup({ enable_close_on_slash = false })
 end)
 later(function()
+    local function build_blink(params)
+        vim.notify("Building blink.cmp", vim.log.levels.INFO)
+        local obj = vim.system({ "nix", "run", ".#build-plugin" }, { cwd = params.path }):wait()
+        if obj.code == 0 then
+            vim.notify("Building blink.cmp done", vim.log.levels.INFO)
+        else
+            vim.notify("Building blink.cmp failed", vim.log.levels.ERROR)
+        end
+    end
     add({
         source = "saghen/blink.cmp",
-        checkout = "v1.0.0",
-        monitor = "main",
+        hooks = {
+            post_install = build_blink,
+            post_checkout = build_blink,
+        },
         depends = {
             "rafamadriz/friendly-snippets",
             "saghen/blink.compat",
@@ -203,6 +214,23 @@ later(function()
     app:instance("route_info_view", route_info_view)
 end)
 later(function() add("christoomey/vim-tmux-navigator") end)
+later(function()
+    add({ source = "kristijanhusak/vim-dadbod-ui", depends = { "tpope/vim-dadbod" } })
+    local base = vim.fs.joinpath(os.getenv("HOME"), "tmp", "queries")
+    vim.g.db_ui_use_nerd_fonts = 1
+    vim.g.db_ui_winwidth = 40
+    vim.g.db_ui_win_position = "right"
+    vim.g.db_ui_auto_execute_table_helpers = true
+    vim.g.db_ui_execute_on_save = false
+    vim.g.db_ui_show_database_icon = true
+    vim.g.db_ui_save_location = base
+    vim.g.db_ui_tmp_query_location = vim.fs.joinpath(base, "tmp")
+    vim.g.dbs = {
+        { name = "ous-local", url = os.getenv("DB_OUS_LOCAL") },
+        { name = "ous-staging", url = os.getenv("DB_OUS_STAGING") },
+        { name = "ous-prod", url = os.getenv("DB_OUS_PROD") },
+    }
+end)
 
 -- Local
 later(function()

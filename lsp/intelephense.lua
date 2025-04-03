@@ -1,12 +1,11 @@
 return {
     cmd = { "intelephense", "--stdio" },
     filetypes = { "php", "blade", "php_only" },
-    -- root_dir = find_root_pattern({ "composer.json" }),
     root_markers = { "composer.json" },
     init_options = {
         storagePath = "/tmp/intelephense",
         globalStoragePath = os.getenv("HOME") .. "/.cache/intelephense",
-        licenceKey = os.getenv("HOME") .. "/.local/auth/intelephense.txt" or "",
+        licenceKey = os.getenv("INTELEPHENSE_KEY"),
         ["language_server_configuration.auto_config"] = true,
         ["code_transform.import_globals"] = true,
     },

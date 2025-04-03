@@ -52,28 +52,33 @@ end
 autocmd("LspAttach", {
     group = augroup("lsp-attach"),
     callback = function(event)
-        keymap("n", "K", vim.lsp.buf.hover, { buffer = event.buf })
-        keymap("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename" })
-        keymap("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code Action" })
-        keymap("n", "<leader>ss", [[<cmd>Pick lsp scope='document_symbol'<cr>]], { desc = "Document LSP symbols" })
-        keymap("n", "<leader>sS", [[<cmd>Pick lsp scope='workspace_symbol'<cr>]], { desc = "Workspace LSP symbols" })
-        keymap("n", "gd", function() picker("definition", true) end, { desc = "Definition" })
-        keymap("n", "gD", function() picker("declaration", true) end, { desc = "Declaration" })
-        keymap("n", "gr", function() picker("references", true) end, { desc = "References" })
-        keymap("n", "gt", function() picker("type_definition", true) end, { desc = "Type definition" })
-        keymap("n", "gi", function() picker("implementation", true) end, { desc = "Implementation" })
+        Util.keymap("n", "K", vim.lsp.buf.hover, { buffer = event.buf })
+        Util.keymap("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename" })
+        Util.keymap("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code Action" })
+        Util.keymap("n", "<leader>ss", [[<cmd>Pick lsp scope='document_symbol'<cr>]], { desc = "Document LSP symbols" })
+        Util.keymap(
+            "n",
+            "<leader>sS",
+            [[<cmd>Pick lsp scope='workspace_symbol'<cr>]],
+            { desc = "Workspace LSP symbols" }
+        )
+        Util.keymap("n", "gd", function() picker("definition", true) end, { desc = "Definition" })
+        Util.keymap("n", "gD", function() picker("declaration", true) end, { desc = "Declaration" })
+        Util.keymap("n", "gr", function() picker("references", true) end, { desc = "References" })
+        Util.keymap("n", "gt", function() picker("type_definition", true) end, { desc = "Type definition" })
+        Util.keymap("n", "gi", function() picker("implementation", true) end, { desc = "Implementation" })
 
-        keymap("n", "<leader>sm", [[<cmd>Pick visit_paths filter='core'<cr>]], { desc = "Marked files" })
-        keymap("n", "<leader>md", [[<cmd>lua MiniVisits.remove_label("core")<CR>]], { desc = "Delete mark" })
-        keymap("n", "mq", function() goto_marked_file(1) end, { desc = "Goto mark 1" })
+        Util.keymap("n", "<leader>sm", [[<cmd>Pick visit_paths filter='core'<cr>]], { desc = "Marked files" })
+        Util.keymap("n", "<leader>md", [[<cmd>lua MiniVisits.remove_label("core")<CR>]], { desc = "Delete mark" })
+        Util.keymap("n", "mq", function() goto_marked_file(1) end, { desc = "Goto mark 1" })
 
         local zendiagram = require("zendiagram")
-        keymap("n", "<Leader>e", zendiagram.open, { desc = "Show diagnostics" })
-        keymap({ "n", "x" }, "]d", function()
+        Util.keymap("n", "<Leader>e", zendiagram.open, { desc = "Show diagnostics" })
+        Util.keymap({ "n", "x" }, "]d", function()
             vim.diagnostic.jump({ count = 1 })
             vim.schedule(function() zendiagram.open() end)
         end, { desc = "Jump to next diagnostic" })
-        keymap({ "n", "x" }, "[d", function()
+        Util.keymap({ "n", "x" }, "[d", function()
             vim.diagnostic.jump({ count = -1 })
             vim.schedule(function() zendiagram.open() end)
         end, { desc = "Jump to prev diagnostic" })
@@ -224,6 +229,40 @@ autocmd("BufWinEnter", {
         if vim.o.filetype == "help" then
             -- Move help window to the far right
             vim.cmd.wincmd("L")
+        end
+    end,
+})
+
+local ous_ssh_group = augroup("OusSSHTunnel")
+local ssh_handles = {}
+autocmd("VimEnter", {
+    group = ous_ssh_group,
+    callback = function()
+        if not vim.startswith(vim.fn.getcwd(), os.getenv("HOME") .. "/ous") then return end
+
+        for _, env in ipairs({ "staging", "prod" }) do
+            local handle, _ = vim.uv.spawn("ssh", {
+                args = { "-N", "ous-" .. env },
+                stdio = { nil, nil, nil },
+                detached = false,
+            })
+            if handle then
+                ssh_handles[env] = handle
+                vim.notify(env .. " SSH tunnel started", vim.log.levels.INFO)
+            else
+                vim.notify(env .. " SSH tunnel failed to start", vim.log.levels.ERROR)
+            end
+        end
+    end,
+})
+autocmd("VimLeave", {
+    group = ous_ssh_group,
+    callback = function()
+        for _, handle in pairs(ssh_handles) do
+            if handle then
+                handle:kill(9)
+                handle:close()
+            end
         end
     end,
 })
