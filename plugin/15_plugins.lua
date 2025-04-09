@@ -55,11 +55,10 @@ end)
 later(function()
     add({
         source = "nvim-treesitter/nvim-treesitter",
-        checkout = "master",
-        monitor = "main",
         hooks = { post_checkout = function() vim.cmd("TSUpdate") end },
         depends = { "windwp/nvim-ts-autotag", "folke/ts-comments.nvim" },
     })
+    add("nvim-treesitter/nvim-treesitter-textobjects")
     require("nvim-treesitter.configs").setup({
         --stylua: ignore
         ensure_installed = {
