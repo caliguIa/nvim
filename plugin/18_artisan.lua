@@ -129,6 +129,30 @@ local function execute_artisan_command(opts)
     })
 end
 
+---Open a picker to select and run Artisan commands
+local function open_artisan_picker()
+    local artisan_path = find_artisan_path()
+    if not artisan_path then
+        vim.notify("artisan: artisan not found. Are you in a Laravel directory?", vim.log.levels.ERROR)
+        return
+    end
+
+    if not state.commands_cache then state.commands_cache = get_artisan_commands() end
+
+    if #state.commands_cache == 0 then
+        vim.notify("No Artisan commands found", vim.log.levels.ERROR)
+        return
+    end
+
+    vim.ui.select(state.commands_cache, {
+        prompt = "Select Artisan command:",
+        format_item = function(item) return item end,
+    }, function(choice)
+        if not choice then return end
+        execute_artisan_command({ fargs = vim.split(choice, " ") })
+    end)
+end
+
 ---Check if the current directory is a Laravel project and setup the command
 local function setup_artisan_command()
     local artisan_path = find_artisan_path()
@@ -146,10 +170,17 @@ local function setup_artisan_command()
             end,
         })
 
+        -- Create the Artisan picker command
+        vim.api.nvim_create_user_command("ArtisanPicker", open_artisan_picker, {
+            desc = "Open a picker to select and run Artisan commands",
+            nargs = 0,
+        })
+
         state.has_command = true
     elseif not is_laravel_project and state.has_command then
-        -- Remove the command if we're no longer in a Laravel project
+        -- Remove the commands if we're no longer in a Laravel project
         pcall(vim.api.nvim_del_user_command, "Artisan")
+        pcall(vim.api.nvim_del_user_command, "ArtisanPicker")
         state.has_command = false
     end
 end
