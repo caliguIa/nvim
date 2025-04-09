@@ -30,9 +30,16 @@ local function find_artisan_path()
 end
 
 ---Determine the appropriate Docker Compose command
----@return table -- The docker compose command to use
+---@return table|nil -- The docker compose command to use
 local function get_docker_compose_cmd()
-    local result = vim.fn.system("docker compose &> /dev/null && echo 'docker compose' || echo 'docker-compose'")
+    local result = vim.system(
+        { "sh", "-c", "docker compose &> /dev/null && echo 'docker compose' || echo 'docker-compose'" },
+        { text = true }
+    )
+        :wait().stdout
+
+    if not result then return nil end
+
     return vim.split(vim.trim(result), " ")
 end
 
@@ -51,15 +58,14 @@ local function build_artisan_cmd(laravel_path)
         end
     end
 
-    -- Use direct PHP if no Docker setup found
-    if not docker_compose_file then return { "php", vim.fn.shellescape(artisan_path) } end
-
-    -- Setup Docker execution
     local docker_compose_cmd = get_docker_compose_cmd()
+
+    -- Use direct PHP if no Docker setup found
+    if not docker_compose_file or not docker_compose_cmd then return { "php", vim.fn.shellescape(artisan_path) } end
+
     local tty_flag = vim.fn.has("tty") == 1 and "" or "-T"
-    local cmd = vim.list_extend(docker_compose_cmd, { "exec", tty_flag, config.docker.service_name, "php", "artisan" })
-    return cmd
-    -- return docker_compose_cmd .. " exec " .. tty_flag .. " " .. config.docker.service_name .. " php artisan"
+
+    return vim.list_extend(docker_compose_cmd, { "exec", tty_flag, config.docker.service_name, "php", "artisan" })
 end
 
 ---Get all available artisan commands for the current project
@@ -71,7 +77,8 @@ local function get_artisan_commands()
     local laravel_path = vim.fn.fnamemodify(artisan_path, ":h")
     local artisan_cmd = build_artisan_cmd(laravel_path)
 
-    local output = vim.fn.system(artisan_cmd .. " list --format=json --short 2>/dev/null")
+    local artisan_list_cmd = vim.list_extend(artisan_cmd, { "list", "--format=json", "--short" })
+    local output = vim.system(artisan_list_cmd, { text = true, stderr = false }):wait().stdout
 
     local success, decoded = pcall(vim.json.decode, output)
     if not success or not decoded.commands then return {} end
