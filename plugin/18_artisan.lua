@@ -30,17 +30,12 @@ local function find_artisan_path()
 end
 
 ---Determine the appropriate Docker Compose command
----@return table|nil -- The docker compose command to use
+---@return table -- The docker compose command to use
 local function get_docker_compose_cmd()
-    local result = vim.system(
-        { "sh", "-c", "docker compose &> /dev/null && echo 'docker compose' || echo 'docker-compose'" },
-        { text = true }
-    )
-        :wait().stdout
+    local result = vim.system({ "docker", "compose", "--version" }, { text = true }):wait()
+    if result.code == 0 then return { "docker", "compose" } end
 
-    if not result then return nil end
-
-    return vim.split(vim.trim(result), " ")
+    return { "docker-compose" }
 end
 
 ---Build the artisan command based on environment detection
@@ -58,11 +53,10 @@ local function build_artisan_cmd(laravel_path)
         end
     end
 
-    local docker_compose_cmd = get_docker_compose_cmd()
-
     -- Use direct PHP if no Docker setup found
-    if not docker_compose_file or not docker_compose_cmd then return { "php", vim.fn.shellescape(artisan_path) } end
+    if not docker_compose_file then return { "php", vim.fn.shellescape(artisan_path) } end
 
+    local docker_compose_cmd = get_docker_compose_cmd()
     local tty_flag = vim.fn.has("tty") == 1 and "" or "-T"
 
     return vim.list_extend(docker_compose_cmd, { "exec", tty_flag, config.docker.service_name, "php", "artisan" })
