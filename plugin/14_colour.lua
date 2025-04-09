@@ -10,6 +10,9 @@ local C = {
     diff_add = "#586935",
     diff_change = "#51657B",
     diff_delete = "#984936",
+    diff_add_bg = "#0C4531",
+    diff_change_bg = "#10666A",
+    diff_delete_bg = "#5C0A14",
     dull_0 = "#ffffff",
     dull_1 = "#f5f5f5",
     dull_2 = "#d5d5d5",
@@ -63,10 +66,10 @@ highlight("CursorColumn", { bg = C.dull_9 })
 highlight("CursorLine", { bg = C.dull_9 })
 highlight("CursorLineNr", { fg = C.dull_6, bg = C.dull_9 })
 highlight("Directory", { fg = C.dull_3 })
-highlight("DiffAdd", { fg = C.primary, bg = C.dull_8 })
-highlight("DiffChange", { fg = C.dull_0, bg = C.dull_8 })
-highlight("DiffDelete", { fg = C.secondary, bg = C.dull_8 })
-highlight("DiffText", { fg = C.dull_0, bg = C.dull_7 })
+highlight("DiffAdd", { bg = C.diff_add_bg })
+highlight("DiffChange", { bg = C.diff_change_bg })
+highlight("DiffDelete", { bg = C.diff_delete_bg })
+highlight("DiffText", { bg = C.diff_change_bg })
 highlight("ErrorMsg", { fg = C.diagnostic_error })
 highlight("VertSplit", { fg = C.dull_8, bg = C.dull_9 })
 highlight("WinSeparator", { fg = C.dull_8, bg = C.dull_9 })

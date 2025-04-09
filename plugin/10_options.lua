@@ -5,16 +5,21 @@ vim.g.maplocalleader = vim.keycode(",")
 -- General ====================================================================
 vim.o.autoread = true -- Automatically read file contents if file is changed outside of vim
 vim.o.backup = false -- Don't store backup
-vim.o.clipboard = "unnamedplus" -- Sync with system clipboard
+vim.schedule(function()
+    vim.o.clipboard = "unnamedplus" -- Sync with system clipboard (scheduled as it can delay startup)
+end)
 vim.o.mouse = "a" -- Enable mouse
 vim.o.swapfile = false -- Disable swap file
 vim.o.switchbuf = "usetab" -- Use already opened buffers when switching
 vim.o.writebackup = false -- Don't store backup
 vim.o.undofile = true -- Enable persistent undo
-vim.o.updatetime = 300
+vim.o.updatetime = 200
 vim.o.shada = "'100,<50,s10,:1000,/100,@100,h" -- Limit what is stored in ShaDa file
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
+
+vim.opt.list = true
+vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 
 vim.cmd("filetype plugin indent on") -- Enable all filetype plugins
 

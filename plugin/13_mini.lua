@@ -25,12 +25,33 @@ now(function()
     later(MiniIcons.tweak_lsp_kind)
 end)
 
+now(function()
+    require("mini.misc").setup()
+    MiniMisc.setup_auto_root()
+    MiniMisc.setup_restore_cursor()
+end)
+
+now(
+    function()
+        require("mini.files").setup({
+            mappings = {
+                go_in = "",
+                go_in_plus = "<CR>",
+                go_out = "",
+                go_out_plus = "-",
+            },
+        })
+    end
+)
+
 later(function() require("mini.extra").setup() end)
 later(function() require("mini.visits").setup() end)
-later(function() require("mini.pick").setup() end)
+later(function()
+    require("mini.pick").setup()
+    vim.ui.select = MiniPick.ui_select
+end)
 later(function() require("mini.bufremove").setup() end)
 later(function() require("mini.surround").setup({ search_method = "cover_or_next" }) end)
-later(function() require("mini.files").setup() end)
 later(
     function()
         require("mini.indentscope").setup({
@@ -86,20 +107,10 @@ later(function()
     ai.setup({
         n_lines = 500,
         custom_textobjects = {
-            o = ai.gen_spec.treesitter({ -- code block
-                a = { "@block.outer", "@conditional.outer", "@loop.outer" },
-                i = { "@block.inner", "@conditional.inner", "@loop.inner" },
-            }),
-            f = ai.gen_spec.treesitter({ a = "@function.outer", i = "@function.inner" }), -- function
+            B = MiniExtra.gen_ai_spec.buffer(),
+            f = ai.gen_spec.treesitter({ a = "@function.outer", i = "@function.inner" }),
             c = ai.gen_spec.treesitter({ a = "@class.outer", i = "@class.inner" }), -- class
-            t = { "<([%p%w]-)%f[^<%w][^<>]->.-</%1>", "^<.->().*()</[^/]->$" }, -- tags
-            d = { "%f[%d]%d+" }, -- digits
-            e = { -- Word with case
-                { "%u[%l%d]+%f[^%l%d]", "%f[%S][%l%d]+%f[^%l%d]", "%f[%P][%l%d]+%f[^%l%d]", "^[%l%d]+%f[^%l%d]" },
-                "^().*()$",
-            },
-            u = ai.gen_spec.function_call(), -- u for "Usage"
-            U = ai.gen_spec.function_call({ name_pattern = "[%w_]" }), -- without dot in function name
+            F = ai.gen_spec.function_call(),
         },
     })
 end)

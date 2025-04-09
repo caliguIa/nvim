@@ -17,7 +17,6 @@ local function picker(scope, autojump)
         return
     end
 
-    ---@param opts vim.lsp.LocationOpts.OnList
     local function on_list(opts)
         vim.fn.setqflist({}, " ", opts)
 
@@ -52,51 +51,95 @@ end
 autocmd("LspAttach", {
     group = augroup("lsp-attach"),
     callback = function(event)
-        Util.keymap("n", "K", vim.lsp.buf.hover, { buffer = event.buf })
-        Util.keymap("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename" })
-        Util.keymap("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code Action" })
-        Util.keymap("n", "<leader>ss", [[<cmd>Pick lsp scope='document_symbol'<cr>]], { desc = "Document LSP symbols" })
-        Util.keymap(
-            "n",
-            "<leader>sS",
-            [[<cmd>Pick lsp scope='workspace_symbol'<cr>]],
-            { desc = "Workspace LSP symbols" }
-        )
-        Util.keymap("n", "gd", function() picker("definition", true) end, { desc = "Definition" })
-        Util.keymap("n", "gD", function() picker("declaration", true) end, { desc = "Declaration" })
-        Util.keymap("n", "gr", function() picker("references", true) end, { desc = "References" })
-        Util.keymap("n", "gt", function() picker("type_definition", true) end, { desc = "Type definition" })
-        Util.keymap("n", "gi", function() picker("implementation", true) end, { desc = "Implementation" })
+        Util.map("n", "K", vim.lsp.buf.hover, { buffer = event.buf })
+        Util.map("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename" })
+        Util.map("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code Action" })
+        Util.map("n", "<leader>ss", [[<cmd>Pick lsp scope='document_symbol'<cr>]], { desc = "Document LSP symbols" })
+        Util.map("n", "<leader>sS", [[<cmd>Pick lsp scope='workspace_symbol'<cr>]], { desc = "Workspace LSP symbols" })
+        Util.map("n", "gd", function() picker("definition", true) end, { desc = "Definition" })
+        Util.map("n", "gD", function() picker("declaration", true) end, { desc = "Declaration" })
+        Util.map("n", "gr", function() picker("references", true) end, { desc = "References" })
+        Util.map("n", "gt", function() picker("type_definition", true) end, { desc = "Type definition" })
+        Util.map("n", "gi", function() picker("implementation", true) end, { desc = "Implementation" })
 
-        Util.keymap("n", "<leader>sm", [[<cmd>Pick visit_paths filter='core'<cr>]], { desc = "Marked files" })
-        Util.keymap("n", "<leader>md", [[<cmd>lua MiniVisits.remove_label("core")<CR>]], { desc = "Delete mark" })
-        Util.keymap("n", "mq", function() goto_marked_file(1) end, { desc = "Goto mark 1" })
+        Util.map("n", "<leader>sm", [[<cmd>Pick visit_paths filter='core'<cr>]], { desc = "Marked files" })
+        Util.map("n", "<leader>md", [[<cmd>lua MiniVisits.remove_label("core")<CR>]], { desc = "Delete mark" })
+        Util.map("n", "mq", function() goto_marked_file(1) end, { desc = "Goto mark 1" })
 
         local zendiagram = require("zendiagram")
-        Util.keymap("n", "<Leader>e", zendiagram.open, { desc = "Show diagnostics" })
-        Util.keymap({ "n", "x" }, "]d", function()
+        Util.map("n", "<Leader>e", zendiagram.open, { desc = "Show diagnostics" })
+        Util.map({ "n", "x" }, "]d", function()
             vim.diagnostic.jump({ count = 1 })
             vim.schedule(function() zendiagram.open() end)
         end, { desc = "Jump to next diagnostic" })
-        Util.keymap({ "n", "x" }, "[d", function()
+        Util.map({ "n", "x" }, "[d", function()
             vim.diagnostic.jump({ count = -1 })
             vim.schedule(function() zendiagram.open() end)
         end, { desc = "Jump to prev diagnostic" })
-    end,
-})
 
-autocmd("LspAttach", {
-    group = augroup("lsp-folds-set"),
-    callback = function(args)
-        local client = vim.lsp.get_client_by_id(args.data.client_id)
-        if client and client:supports_method("textDocument/foldingRange") then
+        local client = vim.lsp.get_client_by_id(event.data.client_id)
+        if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf) then
+            local highlight_augroup = vim.api.nvim_create_augroup("lsp-highlight", { clear = false })
+            vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+                buffer = event.buf,
+                group = highlight_augroup,
+                callback = vim.lsp.buf.document_highlight,
+            })
+
+            vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+                buffer = event.buf,
+                group = highlight_augroup,
+                callback = vim.lsp.buf.clear_references,
+            })
+
+            vim.api.nvim_create_autocmd("LspDetach", {
+                group = vim.api.nvim_create_augroup("lsp-detach", { clear = true }),
+                callback = function(event2)
+                    vim.lsp.buf.clear_references()
+                    vim.api.nvim_clear_autocmds({ group = "lsp-highlight", buffer = event2.buf })
+                end,
+            })
+        end
+
+        if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_foldingRange) then
             local win = vim.api.nvim_get_current_win()
             vim.wo[win][0].foldmethod = "expr"
             vim.wo[win][0].foldexpr = "v:lua.vim.lsp.foldexpr()"
+
+            autocmd("LspDetach", { group = augroup("lsp-folds-unset"), command = "setl foldexpr<" })
         end
     end,
 })
-autocmd("LspDetach", { group = augroup("lsp-folds-unset"), command = "setl foldexpr<" })
+
+autocmd("User", {
+    group = augroup("mini_files_rename"),
+    pattern = "MiniFilesActionRename",
+    callback = function(event)
+        local Methods = vim.lsp.protocol.Methods
+
+        local changes = {
+            files = {
+                {
+                    oldUri = vim.uri_from_fname(event.data.from),
+                    newUri = vim.uri_from_fname(event.data.to),
+                },
+            },
+        }
+        local clients = vim.lsp.get_clients()
+        for _, client in ipairs(clients) do
+            if client:supports_method(Methods.workspace_willRenameFiles) then
+                print(client.name)
+                local resp = client:request_sync(Methods.workspace_willRenameFiles, changes, 1000, 0)
+                if resp and resp.result ~= nil then
+                    vim.lsp.util.apply_workspace_edit(resp.result, client.offset_encoding)
+                end
+                if client:supports_method(Methods.workspace_didRenameFiles) then
+                    client:notify(Methods.workspace_didRenameFiles, changes)
+                end
+            end
+        end
+    end,
+})
 
 -- Check if we need to reload the file when it changed
 autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
@@ -147,34 +190,7 @@ autocmd("FileType", {
 autocmd({ "BufWritePost" }, {
     group = augroup("eslint_fix"),
     pattern = { "*.js", "*.jsx", "*.ts", "*.tsx" },
-    callback = function()
-        local client = unpack(vim.lsp.get_clients({ bufnr = 0, name = "eslint" }))
-        if client then
-            client:request_sync("workspace/executeCommand", {
-                command = "eslint.applyAllFixes",
-                arguments = {
-                    {
-                        uri = vim.uri_from_bufnr(0),
-                        version = vim.lsp.util.buf_versions[0],
-                    },
-                },
-            }, nil, 0)
-        end
-    end,
-})
-
--- go to last loc when opening a buffer
-autocmd("BufReadPost", {
-    group = augroup("last_loc"),
-    callback = function(event)
-        local exclude = { "gitcommit" }
-        local buf = event.buf
-        if vim.tbl_contains(exclude, vim.bo[buf].filetype) or vim.b[buf].last_loc then return end
-        vim.b[buf].last_loc = true
-        local mark = vim.api.nvim_buf_get_mark(buf, '"')
-        local lcount = vim.api.nvim_buf_line_count(buf)
-        if mark[1] > 0 and mark[1] <= lcount then pcall(vim.api.nvim_win_set_cursor, 0, mark) end
-    end,
+    command = "silent! EslintFixAll",
 })
 
 -- Fix conceallevel for json files
