@@ -13,7 +13,7 @@ local config = {
 }
 
 ---Find the artisan file by traversing up the directory tree
----@return string|nil -- Artisan path
+---@return string|nil artisan_path The full path to artisan or nil if not found
 local function find_artisan_path()
     local current_dir = vim.fn.getcwd()
     local prev_dir = ""
@@ -30,15 +30,15 @@ local function find_artisan_path()
 end
 
 ---Determine the appropriate Docker Compose command
----@return string -- Docker compose command
+---@return table -- The docker compose command to use
 local function get_docker_compose_cmd()
     local result = vim.fn.system("docker compose &> /dev/null && echo 'docker compose' || echo 'docker-compose'")
-    return vim.trim(result)
+    return vim.split(vim.trim(result), " ")
 end
 
 ---Build the artisan command based on environment detection
 ---@param laravel_path string The path to the Laravel project root
----@return string -- The full artisan command to execute
+---@return table -- The full artisan command to execute
 local function build_artisan_cmd(laravel_path)
     local artisan_path = laravel_path .. "/artisan"
     local docker_compose_file = nil
@@ -52,16 +52,18 @@ local function build_artisan_cmd(laravel_path)
     end
 
     -- Use direct PHP if no Docker setup found
-    if not docker_compose_file then return "php " .. vim.fn.shellescape(artisan_path) end
+    if not docker_compose_file then return { "php", vim.fn.shellescape(artisan_path) } end
 
     -- Setup Docker execution
     local docker_compose_cmd = get_docker_compose_cmd()
     local tty_flag = vim.fn.has("tty") == 1 and "" or "-T"
-    return docker_compose_cmd .. " exec " .. tty_flag .. " " .. config.docker.service_name .. " php artisan"
+    local cmd = vim.list_extend(docker_compose_cmd, { "exec", tty_flag, config.docker.service_name, "php", "artisan" })
+    return cmd
+    -- return docker_compose_cmd .. " exec " .. tty_flag .. " " .. config.docker.service_name .. " php artisan"
 end
 
 ---Get all available artisan commands for the current project
----@return table -- List artisan commands
+---@return table -- A list of available artisan commands
 local function get_artisan_commands()
     local artisan_path = find_artisan_path()
     if not artisan_path then return {} end
@@ -71,7 +73,6 @@ local function get_artisan_commands()
 
     local output = vim.fn.system(artisan_cmd .. " list --format=json --short 2>/dev/null")
 
-    -- Parse the JSON output
     local success, decoded = pcall(vim.json.decode, output)
     if not success or not decoded.commands then return {} end
 
@@ -88,7 +89,7 @@ local function get_artisan_commands()
 end
 
 ---Run an artisan command in a terminal split
----@param opts table -- Command options from nvim_create_user_command
+---@param opts table Command options from nvim_create_user_command
 local function execute_artisan_command(opts)
     local artisan_path = find_artisan_path()
     if not artisan_path then
@@ -99,28 +100,32 @@ local function execute_artisan_command(opts)
     local laravel_path = vim.fn.fnamemodify(artisan_path, ":h")
     local artisan_cmd = build_artisan_cmd(laravel_path)
 
-    -- Create the terminal split
-    vim.cmd("vsplit")
-    vim.cmd("wincmd L")
-    vim.cmd("vertical resize " .. math.floor(vim.o.columns * config.window.width_ratio))
+    local buf = vim.api.nvim_create_buf(false, true)
 
-    vim.cmd.terminal(artisan_cmd .. " " .. table.concat(opts.fargs, " "))
+    local win_width = vim.api.nvim_get_option_value("columns", {})
+    local term_width = math.floor(win_width * config.window.width_ratio)
 
-    -- Configure the terminal buffer
-    local buf = vim.api.nvim_get_current_buf()
-    vim.bo[buf].buflisted = false
+    local win = vim.api.nvim_open_win(buf, true, {
+        width = term_width,
+        split = "right",
+        win = 0,
+    })
 
-    -- Add a shortcut to close the terminal
-    vim.schedule(function()
-        vim.keymap.set("n", "q", function()
-            vim.cmd("close")
-            pcall(vim.api.nvim_buf_delete, buf, { force = true })
-        end, {
-            buffer = buf,
-            silent = true,
-            desc = "Close the Artisan terminal",
-        })
-    end)
+    vim.api.nvim_set_option_value("buflisted", false, { buf = buf })
+    vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
+
+    vim.api.nvim_set_option_value("number", false, { win = win })
+    vim.api.nvim_set_option_value("relativenumber", false, { win = win })
+    vim.api.nvim_set_option_value("cursorline", false, { win = win })
+
+    local cmd = vim.list_extend(artisan_cmd, opts.fargs)
+    vim.fn.jobstart(cmd, { term = true })
+
+    vim.keymap.set("n", "q", function() vim.api.nvim_win_close(win, true) end, {
+        buffer = buf,
+        silent = true,
+        desc = "Close the Artisan terminal",
+    })
 end
 
 ---Check if the current directory is a Laravel project and setup the command
