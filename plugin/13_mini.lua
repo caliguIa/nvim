@@ -51,7 +51,7 @@ later(function()
     vim.ui.select = MiniPick.ui_select
 end)
 later(function() require("mini.bufremove").setup() end)
-later(function() require("mini.surround").setup({ search_method = "cover_or_next" }) end)
+later(function() require("mini.surround").setup() end)
 later(
     function()
         require("mini.indentscope").setup({
@@ -120,11 +120,14 @@ later(function()
     miniclue.setup({
         clues = {
             {
+                { mode = "n", keys = "<Leader>a", desc = "+AI" },
                 { mode = "n", keys = "<Leader>b", desc = "+Buffer" },
                 { mode = "n", keys = "<Leader>c", desc = "+Code" },
+                { mode = "n", keys = "<Leader>d", desc = "+DB" },
                 { mode = "n", keys = "<Leader>f", desc = "+File" },
                 { mode = "n", keys = "<Leader>g", desc = "+Git" },
-                { mode = "n", keys = "<Leader>m", desc = "+Marks" },
+                { mode = "n", keys = "<Leader>l", desc = "+Laravel" },
+                { mode = "n", keys = "m", desc = "+Marks" },
                 { mode = "n", keys = "<Leader>r", desc = "+Rename" },
                 { mode = "n", keys = "<Leader>s", desc = "+Search" },
                 { mode = "n", keys = "<Leader>t", desc = "+Test" },

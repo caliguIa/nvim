@@ -40,42 +40,30 @@ local function picker(scope, autojump)
     vim.lsp.buf[scope]({ on_list = on_list })
 end
 
-local function goto_marked_file(index)
-    local marked = MiniVisits.list_paths(nil, {
-        filter = "core",
-        sort = function(paths) return paths end,
-    })
-    if marked[index] then vim.cmd("edit " .. marked[index]) end
-end
-
 autocmd("LspAttach", {
     group = augroup("lsp-attach"),
     callback = function(event)
-        Util.map("n", "K", vim.lsp.buf.hover, { buffer = event.buf })
-        Util.map("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename" })
-        Util.map("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code Action" })
-        Util.map("n", "<leader>ss", [[<cmd>Pick lsp scope='document_symbol'<cr>]], { desc = "Document LSP symbols" })
-        Util.map("n", "<leader>sS", [[<cmd>Pick lsp scope='workspace_symbol'<cr>]], { desc = "Workspace LSP symbols" })
-        Util.map("n", "gd", function() picker("definition", true) end, { desc = "Definition" })
-        Util.map("n", "gD", function() picker("declaration", true) end, { desc = "Declaration" })
-        Util.map("n", "gr", function() picker("references", true) end, { desc = "References" })
-        Util.map("n", "gt", function() picker("type_definition", true) end, { desc = "Type definition" })
-        Util.map("n", "gi", function() picker("implementation", true) end, { desc = "Implementation" })
-
-        Util.map("n", "<leader>sm", [[<cmd>Pick visit_paths filter='core'<cr>]], { desc = "Marked files" })
-        Util.map("n", "<leader>md", [[<cmd>lua MiniVisits.remove_label("core")<CR>]], { desc = "Delete mark" })
-        Util.map("n", "mq", function() goto_marked_file(1) end, { desc = "Goto mark 1" })
-
         local zendiagram = require("zendiagram")
-        Util.map("n", "<Leader>e", zendiagram.open, { desc = "Show diagnostics" })
-        Util.map({ "n", "x" }, "]d", function()
+        Util.map.n("K", vim.lsp.buf.hover, "Hover", { buffer = event.buf })
+        Util.map.nl("rn", vim.lsp.buf.rename, "Rename")
+        Util.map.nl("ss", [[<cmd>Pick lsp scope='document_symbol'<cr>]], "Document LSP symbols")
+        Util.map.nl("sS", [[<cmd>Pick lsp scope='workspace_symbol'<cr>]], "Workspace LSP symbols")
+        Util.map.n("gd", function() picker("definition", true) end, "Definition")
+        Util.map.n("gD", function() picker("declaration", true) end, "Declaration")
+        Util.map.n("gr", function() picker("references", true) end, "References")
+        Util.map.n("gt", function() picker("type_definition", true) end, "Type definition")
+        Util.map.n("gi", function() picker("implementation", true) end, "Implementation")
+        Util.map.nl("e", function()
+            vim.schedule(function() zendiagram.open() end)
+        end, "Diagnostics float")
+        Util.map.n("]d", function()
             vim.diagnostic.jump({ count = 1 })
             vim.schedule(function() zendiagram.open() end)
-        end, { desc = "Jump to next diagnostic" })
-        Util.map({ "n", "x" }, "[d", function()
+        end, "Next diagnostic")
+        Util.map.n("[d", function()
             vim.diagnostic.jump({ count = -1 })
             vim.schedule(function() zendiagram.open() end)
-        end, { desc = "Jump to prev diagnostic" })
+        end, "Prev diagnostic")
 
         local client = vim.lsp.get_client_by_id(event.data.client_id)
         if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf) then
@@ -167,14 +155,10 @@ autocmd("FileType", {
     callback = function(event)
         vim.bo[event.buf].buflisted = false
         vim.schedule(function()
-            vim.keymap.set("n", "q", function()
-                vim.cmd("close")
+            Util.map.n("q", function()
+                vim.cmd.close()
                 pcall(vim.api.nvim_buf_delete, event.buf, { force = true })
-            end, {
-                buffer = event.buf,
-                silent = true,
-                desc = "Quit buffer",
-            })
+            end, "Close buffer", { buffer = event.buf })
         end)
     end,
 })
@@ -242,10 +226,7 @@ autocmd("BufWinEnter", {
     group = augroup("help_window_right"),
     pattern = { "*.txt" },
     callback = function()
-        if vim.o.filetype == "help" then
-            -- Move help window to the far right
-            vim.cmd.wincmd("L")
-        end
+        if vim.o.filetype == "help" then vim.cmd.wincmd("L") end
     end,
 })
 

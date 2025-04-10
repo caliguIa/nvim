@@ -109,4 +109,4 @@ local function create_insert_query()
     print("INSERT query copied to clipboard!")
 end
 
-Util.map("n", "<leader>dc", create_insert_query, { buffer = true })
+Util.map.nl("dc", create_insert_query, "Copy result as insert query", { buffer = true })

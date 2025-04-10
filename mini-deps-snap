@@ -7,6 +7,7 @@ return {
   ["gitsigns.nvim"] = "17ab794b6fce6fce768430ebc925347e349e1d60",
   ["indent-blankline.nvim"] = "005b56001b2cb30bfa61b7986bc50657816ba4ba",
   ["mini.nvim"] = "2faada1cffce5609d78ac5e81eaf3754e0476758",
+  neogit = "97f83f1dc51dee41e08e3c7a8adf00e1083e3178",
   ["nui.nvim"] = "8d3bce9764e627b62b07424e0df77f680d47ffdb",
   ["nvim-dbee"] = "b4aebcabedbf0f5aa90ca391c87d6095e365ac33",
   ["nvim-lspconfig"] = "94dda50b2d9a29d0b76562a9027029538840e2d7",

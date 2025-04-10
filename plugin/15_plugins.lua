@@ -9,6 +9,13 @@ later(function()
 end)
 later(function() add("mbbill/undotree") end)
 later(function()
+    add({
+        source = "NeogitOrg/neogit",
+        depends = { "nvim-lua/plenary.nvim" },
+    })
+    require("neogit").setup()
+end)
+later(function()
     add("akinsho/git-conflict.nvim")
     require("git-conflict").setup()
 end)
