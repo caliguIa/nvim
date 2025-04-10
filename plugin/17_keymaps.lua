@@ -1,11 +1,16 @@
 local later = MiniDeps.later
 local cmd = vim.cmd
 
-vim.keymap.del("n", "grr")
-vim.keymap.del("n", "gra")
-vim.keymap.del("n", "gri")
-vim.keymap.del("n", "grn")
--- vim.keymap.del("n", "m")
+local del = vim.keymap.del
+local try_del = function(mode, keys) pcall(del, mode, keys) end
+try_del("n", "grr")
+try_del("n", "gra")
+try_del("n", "gri")
+try_del("n", "grn")
+
+Util.map.nl("q", "q", "Macros", { remap = true })
+Util.map.n("q", "<Nop>", "Disable macros")
+Util.map.n("m", "<Nop>", "Disable marks")
 
 Util.map.c("<C-p>", "<Up>", "Previous command")
 Util.map.c("<C-n>", "<Down>", "Next command")

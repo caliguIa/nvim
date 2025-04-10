@@ -46,6 +46,7 @@ autocmd("LspAttach", {
         local zendiagram = require("zendiagram")
         Util.map.n("K", vim.lsp.buf.hover, "Hover", { buffer = event.buf })
         Util.map.nl("rn", vim.lsp.buf.rename, "Rename")
+        Util.map.nl("ca", vim.lsp.buf.code_action, "Code action")
         Util.map.nl("ss", [[<cmd>Pick lsp scope='document_symbol'<cr>]], "Document LSP symbols")
         Util.map.nl("sS", [[<cmd>Pick lsp scope='workspace_symbol'<cr>]], "Workspace LSP symbols")
         Util.map.n("gd", function() picker("definition", true) end, "Definition")
