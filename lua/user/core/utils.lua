@@ -20,7 +20,7 @@ local function create_mapper(mode, prefix)
     end
 end
 
-Util.map = {
+_G.Util.map = {
     n = create_mapper("n"), -- Normal mode
     nl = create_mapper("n", "<leader>"), -- Normal mode with leader prefix
     i = create_mapper("i"), -- Insert mode

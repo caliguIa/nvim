@@ -176,6 +176,8 @@ local function setup_artisan_command()
             nargs = 0,
         })
 
+        Util.map.nl("la", vim.cmd.ArtisanPicker, "Artisan commands")
+
         state.has_command = true
     elseif not is_laravel_project and state.has_command then
         -- Remove the commands if we're no longer in a Laravel project

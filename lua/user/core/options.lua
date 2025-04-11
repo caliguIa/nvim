@@ -1,6 +1,6 @@
 -- Leader key =================================================================
 vim.g.mapleader = vim.keycode("<space>")
-vim.g.maplocalleader = vim.keycode(",")
+vim.g.maplocalleader = vim.keycode("<space>")
 
 -- General ====================================================================
 vim.o.autoread = true -- Automatically read file contents if file is changed outside of vim

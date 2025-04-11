@@ -1,0 +1,5 @@
+require("user.core.options")
+require("user.core.colour")
+require("user.core.utils")
+require("user.core.keymaps")
+require("user.core.autocmds")
