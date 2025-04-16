@@ -77,12 +77,7 @@ local clients = {
             Lua = {
                 runtime = {
                     version = "LuaJIT",
-                    path = (function()
-                        local runtime_path = vim.split(package.path, ";")
-                        table.insert(runtime_path, "lua/?.lua")
-                        table.insert(runtime_path, "lua/?/init.lua")
-                        return runtime_path
-                    end)(),
+                    path = vim.split(package.path, ";"),
                 },
                 diagnostics = {
                     globals = { "vim" },
@@ -180,7 +175,7 @@ vim.g.zig_fmt_autosave = 0
 
 vim.iter(clients)
     :map(function(server, config)
-        config.capabilities = require("blink.cmp").get_lsp_capabilities(config.capabilities)
+        -- config.capabilities = require("blink.cmp").get_lsp_capabilities(config.capabilities)
 
         return { server = server, config = config }
     end)

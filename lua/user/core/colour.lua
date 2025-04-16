@@ -122,6 +122,11 @@ highlight("MiniStatuslineModeVisual", { bg = C.dull_9 })
 highlight("MiniStatuslineModeReplace", { bg = C.dull_9 })
 highlight("MiniStatuslineModeCommand", { bg = C.dull_9 })
 highlight("MiniStatuslineModeOther", { bg = C.dull_9 })
+highlight("MiniSnippetsCurrent", { force = true })
+highlight("MiniSnippetsCurrentReplace", { force = true })
+highlight("MiniSnippetsFinal", { force = true })
+highlight("MiniSnippetsUnvisited", { force = true })
+highlight("MiniSnippetsVisited", { force = true })
 highlight("hl-IblIndent", { fg = C.dull_7 })
 
 -- Treesitter syntax highlighting

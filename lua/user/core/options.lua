@@ -43,6 +43,7 @@ vim.o.splitbelow = true -- Horizontal splits will be below
 vim.o.splitright = true -- Vertical splits will be to the right
 vim.o.termguicolors = true -- Enable gui colors
 vim.o.winblend = 0 -- Make floating windows fully opaque
+vim.o.winborder = "single" -- Use no borders
 vim.o.wrap = false -- Display long lines as just one line
 vim.o.listchars = table.concat({ "extends:…", "nbsp:␣", "precedes:…", "tab:> " }, ",")
 vim.o.cursorlineopt = "screenline,number" -- Show cursor line only screen line when wrapped
@@ -88,7 +89,7 @@ vim.opt.fillchars:append({
     eob = " ",
 })
 
-vim.o.completeopt = "menu,menuone,popup,fuzzy" -- modern completion menu
+vim.o.completeopt = "menu,menuone,noselect,popup,fuzzy"
 
 -- Diagnostics ================================================================
 vim.diagnostic.config({

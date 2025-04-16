@@ -1,9 +1,9 @@
 require("dbee").setup({
     sources = {
         require("dbee.sources").MemorySource:new({
-            { name = "ous_local", type = "mysql", url = os.getenv("DBEE_OUS_LOCAL") },
-            { name = "ous_staging", type = "mysql", url = os.getenv("DBEE_OUS_STAGING") },
             { name = "ous_prod", type = "mysql", url = os.getenv("DBEE_OUS_PROD") },
+            { name = "ous_staging", type = "mysql", url = os.getenv("DBEE_OUS_STAGING") },
+            { name = "ous_local", type = "mysql", url = os.getenv("DBEE_OUS_LOCAL") },
         }),
     },
 })

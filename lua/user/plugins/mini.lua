@@ -75,10 +75,7 @@ local function goto_marked_file(index)
         filter = "core",
         sort = function(paths) return paths end,
     })
-    if marked[index] then
-        -- vim.cmd("edit " .. marked[index])
-        cmd.edit(marked[index])
-    end
+    if marked[index] then cmd.edit(marked[index]) end
 end
 Util.map.n("ma", function() MiniVisits.add_label("core") end, "Add mark")
 Util.map.n("md", function() MiniVisits.remove_label("core") end, "Delete mark")
@@ -92,7 +89,6 @@ vim.ui.select = MiniPick.ui_select
 Util.map.nl("gb", function() cmd.Pick("git_branches") end, "Branches")
 Util.map.nl("sm", function() cmd.Pick("visit_paths", 'filter="core"') end, "Marked files")
 Util.map.nl("cs", function() cmd.Pick("spellsuggest") end, "Spelling")
-Util.map.nl("sb", function() cmd.Pick("buffers") end, "Buffers")
 Util.map.nl("sf", function() cmd.Pick("files") end, "Find Files")
 Util.map.nl("sg", function() cmd.Pick("grep_live") end, "Grep")
 Util.map.nl("sh", function() cmd.Pick("help") end, "Help Pages")
@@ -100,6 +96,17 @@ Util.map.nl("sH", function() cmd.Pick("hl_groups") end, "Highlight groups")
 Util.map.nl("sk", function() cmd.Pick("keymaps") end, "Keymaps")
 Util.map.nl("sr", function() cmd.Pick("resume") end, "Resume")
 Util.map.nl("so", function() cmd.Pick("visit_paths") end, "Recent")
+
+Util.map.nl("sb", function()
+    MiniPick.builtin.buffers({ include_current = false }, {
+        mappings = {
+            wipeout = {
+                char = "<C-d>",
+                func = function() vim.api.nvim_buf_delete(MiniPick.get_picker_matches().current.bufnr, {}) end,
+            },
+        },
+    })
+end, "Buffers")
 
 require("mini.bufremove").setup()
 Util.map.nl("bd", function() MiniBufremove.delete(vim.api.nvim_get_current_buf()) end, "Delete current")
@@ -230,3 +237,58 @@ require("mini.pairs").setup({
         ["`"] = { action = "closeopen", pair = "``", neigh_pattern = "[^%w\\][^%w]", register = { cr = false } },
     },
 })
+
+require("mini.completion").setup({
+    lsp_completion = { source_func = "omnifunc", auto_setup = false },
+})
+local on_attach = function(args) vim.bo[args.buf].omnifunc = "v:lua.MiniCompletion.completefunc_lsp" end
+vim.api.nvim_create_autocmd("LspAttach", { callback = on_attach })
+if vim.fn.has("nvim-0.11") == 1 then
+    vim.lsp.config("*", {
+        capabilities = vim.tbl_deep_extend(
+            "force",
+            vim.lsp.protocol.make_client_capabilities(),
+            MiniCompletion.get_lsp_capabilities()
+        ),
+    })
+end
+
+require("mini.diff").setup({
+    view = {
+        style = "sign",
+        signs = { add = "▎", change = "▎", delete = "" },
+    },
+})
+Util.map.nl("go", function() MiniDiff.toggle_overlay(0) end, "Diff overlay")
+
+require("mini.git").setup()
+Util.map.nl("gB", function()
+    vim.cmd("vertical leftabove Git blame -- %")
+    vim.cmd("vertical resize 30%")
+    vim.opt_local.winbar = " " -- Empty winbar for padding
+end, "Blame")
+local align_blame = function(au_data)
+    if au_data.data.git_subcommand ~= "blame" then return end
+
+    local win_src = au_data.data.win_source
+    vim.wo.wrap = false
+    vim.fn.winrestview({ topline = vim.fn.line("w0", win_src) })
+    vim.api.nvim_win_set_cursor(0, { vim.fn.line(".", win_src), 0 })
+
+    vim.wo[win_src].scrollbind, vim.wo.scrollbind = true, true
+end
+
+local au_opts = { pattern = "MiniGitCommandSplit", callback = align_blame }
+vim.api.nvim_create_autocmd("User", au_opts)
+
+require("mini.snippets").setup({
+    snippets = {
+        require("mini.snippets").gen_loader.from_lang(),
+    },
+})
+local function highlight(group, opts) vim.api.nvim_set_hl(0, group, opts) end
+highlight("MiniSnippetsCurrent", { force = true })
+highlight("MiniSnippetsCurrentReplace", { force = true })
+highlight("MiniSnippetsFinal", { force = true })
+highlight("MiniSnippetsUnvisited", { force = true })
+highlight("MiniSnippetsVisited", { force = true })
