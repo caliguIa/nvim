@@ -124,15 +124,6 @@ end, "Delete others")
 
 require("mini.surround").setup()
 
-require("mini.indentscope").setup({
-    symbol = "│",
-    draw = { animation = require("mini.indentscope").gen_animation.none() },
-    options = {
-        border = "both",
-        try_as_border = true,
-    },
-})
-
 local statusline = require("mini.statusline")
 statusline.setup({
     content = {

@@ -119,7 +119,7 @@ autocmd("LspAttach", {
 })
 
 -- eslint fix all
-autocmd({ "BufWritePost" }, {
+autocmd({ "BufWritePre" }, {
     group = augroup("eslint_fix"),
     pattern = { "*.js", "*.jsx", "*.ts", "*.tsx" },
     command = "silent! EslintFixAll",

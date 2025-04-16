@@ -114,7 +114,6 @@ highlight("HanzelFileIcon", { fg = C.dull_2 })
 -- Mini
 highlight("MiniFilesNormal", { bg = C.background })
 highlight("MiniPickNormal", { bg = C.background })
-highlight("MiniIndentscopeSymbol", { fg = C.dull_6 })
 highlight("MiniStatuslineDevinfo", { bg = C.dull_9 })
 highlight("MiniStatuslineModeNormal", { bg = C.dull_9 })
 highlight("MiniStatuslineModeInsert", { bg = C.dull_9 })
@@ -127,7 +126,9 @@ highlight("MiniSnippetsCurrentReplace", { force = true })
 highlight("MiniSnippetsFinal", { force = true })
 highlight("MiniSnippetsUnvisited", { force = true })
 highlight("MiniSnippetsVisited", { force = true })
-highlight("hl-IblIndent", { fg = C.dull_7 })
+highlight("MiniIndentscopeSymbol", { fg = C.dull_6 })
+highlight("IndentLine", { fg = C.dull_8 })
+highlight("IndentLineCurrent", { fg = C.dull_5 })
 
 -- Treesitter syntax highlighting
 highlight("@boolean", { fg = C.primary })
