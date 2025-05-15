@@ -1,1 +1,2 @@
-require("user")
+require("core")
+require("config")

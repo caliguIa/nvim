@@ -9,9 +9,9 @@ require("dbee").setup({
 })
 Util.map.nl("do", require("dbee").toggle, "Database")
 
-local ous_ssh_group = vim.api.nvim_create_augroup("OusSSHTunnel", { clear = true })
+local ous_ssh_group = Util.au.group("OusSSHTunnel")
 local ssh_handles = {}
-vim.api.nvim_create_autocmd("VimEnter", {
+Util.au.cmd("VimEnter", {
     group = ous_ssh_group,
     callback = function()
         if not vim.startswith(vim.fn.getcwd(), os.getenv("HOME") .. "/ous") then return end
@@ -31,7 +31,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
         end
     end,
 })
-vim.api.nvim_create_autocmd("VimLeave", {
+Util.au.cmd("VimLeave", {
     group = ous_ssh_group,
     callback = function()
         for _, handle in pairs(ssh_handles) do

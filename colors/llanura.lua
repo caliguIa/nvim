@@ -27,7 +27,7 @@ local C = {
     white = "#FFFFFF",
 }
 
-vim.g.colors_name = "dull"
+vim.g.colors_name = "llanura"
 
 vim.cmd("highlight clear")
 if vim.fn.exists("syntax_on") then vim.cmd("syntax reset") end

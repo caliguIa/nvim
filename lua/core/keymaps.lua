@@ -8,13 +8,15 @@ try_del("n", "gri")
 try_del("n", "grn")
 
 Util.map.nl("q", "q", "Macros", { remap = true })
-Util.map.n("q", "<Nop>", "Disable macros")
+-- Util.map.n("q", "<Nop>", "Disable macros")
 Util.map.n("m", "<Nop>", "Disable marks")
 
 Util.map.c("<C-p>", "<Up>", "Previous command")
 Util.map.c("<C-n>", "<Down>", "Next command")
 
 Util.map.x('"_x', "Delete character without copying")
+Util.map.n("ycc", "yygccp", "Duplicate line and comment", { remap = true })
+
 Util.map.nl("X", function() cmd("!chmod +x %") end, "Make file executable")
 
 Util.map.n("<C-d>", "<C-d>zz", "Down half-page and center")
@@ -22,6 +24,7 @@ Util.map.n("<C-u>", "<C-u>zz", "Up half-page and center")
 
 Util.map.n("<esc>", cmd.noh, "Escape and clear hlsearch")
 
+Util.map.x("/", "<Esc>/\\%V")
 Util.map.n("n", "'Nn'[v:searchforward].'zv'", "Next Search Result", { expr = true })
 Util.map.n("N", "'nN'[v:searchforward].'zv'", "Prev Search Result", { expr = true })
 
@@ -38,7 +41,13 @@ Util.map.nl("wd", "<C-W>c", "Delete Window", { remap = true })
 Util.map.nl("w", "<c-w>", "Windows", { remap = true })
 Util.map.nl("<tab>d", cmd.tabclose, "Close Tab")
 
-Util.map.nl("co", cmd.copen, "Quickfix List")
+Util.map.nl("sq", function()
+    local cur_tabnr = vim.fn.tabpagenr()
+    for _, wininfo in ipairs(vim.fn.getwininfo()) do
+        if wininfo.quickfix == 1 and wininfo.tabnr == cur_tabnr then return vim.cmd("cclose") end
+    end
+    vim.cmd("copen")
+end, "Quickfix List")
 Util.map.n("[q", cmd.cprev, "Previous Quickfix")
 Util.map.n("]q", cmd.cnext, "Next Quickfix")
 

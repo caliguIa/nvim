@@ -10,7 +10,6 @@ return {
         client.server_capabilities.typeDefinitionProvider = false
         client.server_capabilities.workspaceSymbolProvider = false
         client.server_capabilities.definitionProvider = false
-        client.server_capabilities.documentHighlightProvider = false
         client.server_capabilities.documentSymbolProvider = false
         client.server_capabilities.documentFormattingProvider = false
         client.server_capabilities.documentRangeFormattingProvider = false

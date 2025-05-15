@@ -2,7 +2,6 @@ _G.Util = {}
 
 ---@param mode string Mode to add mapping to
 ---@param prefix ?string Optional prefix to add to all keys (e.g., "<leader>")
----@return function Keymap function with consistent signature
 local function create_mapper(mode, prefix)
     prefix = prefix or ""
 
@@ -25,6 +24,20 @@ _G.Util.map = {
     nl = create_mapper("n", "<leader>"), -- Normal mode with leader prefix
     i = create_mapper("i"), -- Insert mode
     v = create_mapper("v"), -- Visual mode
+    vl = create_mapper("v", "<leader>"), -- Visual mode with leader prefix
     c = create_mapper("c"), -- Command mode
     x = create_mapper("x"), -- Visual block mode
+    xl = create_mapper("x", "<leader>"), -- Visual block mode with leader prefix
 }
+
+_G.Util.au = {
+    cmd = vim.api.nvim_create_autocmd,
+    group = function(name, opts)
+        vim.api.nvim_create_augroup(name, vim.tbl_extend("force", { clear = true }, opts or {}))
+    end,
+}
+
+_G.Util.req = function(modname)
+    local ok, err = pcall(require, modname)
+    if not ok then vim.notify("Error loading module: " .. modname .. " " .. err, vim.log.levels.ERROR) end
+end

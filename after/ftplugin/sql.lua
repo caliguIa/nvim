@@ -1,3 +1,1 @@
-local set = vim.opt_local
-
-set.commentstring = "-- %s"
+vim.opt_local.commentstring = "-- %s"

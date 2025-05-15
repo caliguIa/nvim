@@ -38,8 +38,8 @@ Util.map.nl("fe", function()
     MiniFiles.open(path)
 end, "File explorer")
 
-vim.api.nvim_create_autocmd("User", {
-    group = vim.api.nvim_create_augroup("mini_files_rename", { clear = true }),
+Util.au.cmd("User", {
+    group = Util.au.group("mini_files_rename"),
     pattern = "MiniFilesActionRename",
     callback = function(event)
         local Methods = vim.lsp.protocol.Methods
@@ -91,6 +91,7 @@ Util.map.nl("sm", function() cmd.Pick("visit_paths", 'filter="core"') end, "Mark
 Util.map.nl("cs", function() cmd.Pick("spellsuggest") end, "Spelling")
 Util.map.nl("sf", function() cmd.Pick("files") end, "Find Files")
 Util.map.nl("sg", function() cmd.Pick("grep_live") end, "Grep")
+Util.map.nl("sG", function() cmd.Pick("grep", "pattern='<cword>'") end, "Grep current word")
 Util.map.nl("sh", function() cmd.Pick("help") end, "Help Pages")
 Util.map.nl("sH", function() cmd.Pick("hl_groups") end, "Highlight groups")
 Util.map.nl("sk", function() cmd.Pick("keymaps") end, "Keymaps")
@@ -232,17 +233,17 @@ require("mini.pairs").setup({
 require("mini.completion").setup({
     lsp_completion = { source_func = "omnifunc", auto_setup = false },
 })
-local on_attach = function(args) vim.bo[args.buf].omnifunc = "v:lua.MiniCompletion.completefunc_lsp" end
-vim.api.nvim_create_autocmd("LspAttach", { callback = on_attach })
-if vim.fn.has("nvim-0.11") == 1 then
-    vim.lsp.config("*", {
-        capabilities = vim.tbl_deep_extend(
-            "force",
-            vim.lsp.protocol.make_client_capabilities(),
-            MiniCompletion.get_lsp_capabilities()
-        ),
-    })
-end
+Util.au.cmd("LspAttach", {
+    group = Util.au.group("lsp-attach-mini-comp"),
+    callback = function(args) vim.bo[args.buf].omnifunc = "v:lua.MiniCompletion.completefunc_lsp" end,
+})
+vim.lsp.config("*", {
+    capabilities = vim.tbl_deep_extend(
+        "force",
+        vim.lsp.protocol.make_client_capabilities(),
+        MiniCompletion.get_lsp_capabilities()
+    ),
+})
 
 require("mini.diff").setup({
     view = {
@@ -269,8 +270,7 @@ local align_blame = function(au_data)
     vim.wo[win_src].scrollbind, vim.wo.scrollbind = true, true
 end
 
-local au_opts = { pattern = "MiniGitCommandSplit", callback = align_blame }
-vim.api.nvim_create_autocmd("User", au_opts)
+Util.au.cmd("User", { pattern = "MiniGitCommandSplit", callback = align_blame })
 
 require("mini.snippets").setup({
     snippets = {
@@ -283,3 +283,14 @@ highlight("MiniSnippetsCurrentReplace", { force = true })
 highlight("MiniSnippetsFinal", { force = true })
 highlight("MiniSnippetsUnvisited", { force = true })
 highlight("MiniSnippetsVisited", { force = true })
+
+require("mini.jump").setup()
+require("mini.jump2d").setup({
+    view = { dim = true },
+    allowed_windows = { not_current = false },
+    allowed_lines = {
+        blank = false,
+        fold = false,
+    },
+    silent = true,
+})
